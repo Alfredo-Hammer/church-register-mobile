@@ -106,6 +106,13 @@ export const eventsService = {
   },
 };
 
+export const groupsService = {
+  getAll: async () => {
+    const response = await api.get("/groups");
+    return response.data;
+  },
+};
+
 export const membersService = {
   getAll: async (params) => {
     const response = await api.get("/members", { params });

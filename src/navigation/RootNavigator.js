@@ -51,6 +51,7 @@ export default function RootNavigator() {
             <Stack.Screen name="Scanner" component={ScannerScreen} />
             <Stack.Screen name="EventList" component={EventListScreen} options={{ title: "Asistencia" }} />
             <Stack.Screen name="Attendance" component={AttendanceScreen} />
+            <Stack.Screen name="Groups" component={GroupsScreen} options={{ title: "Grupos y ministerios" }} />
           </>
         ) : joinedChurch ? (
           <>

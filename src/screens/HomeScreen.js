@@ -14,6 +14,7 @@ import { colors, gradient, ROLE_META, greetingForTime } from "../theme";
 const MODULES = [
   { key: "conference", icon: "qr-code-outline", iconColor: "#60a5fa", title: "Conferencias", subtitle: "Escanear gafetes y ver asistencia", screen: "ConferenceList" },
   { key: "attendance", icon: "checkmark-done-circle-outline", iconColor: "#34d399", title: "Asistencia", subtitle: "Tomar lista de un evento", screen: "EventList" },
+  { key: "groups", icon: "people-circle-outline", iconColor: "#f472b6", title: "Grupos", subtitle: "Ver ministerios y líderes", screen: "Groups" },
   { key: "visitors", icon: "person-add-outline", iconColor: "#fbbf24", title: "Visitantes", subtitle: "Registrar y dar seguimiento" },
   { key: "members", icon: "people-outline", iconColor: "#a78bfa", title: "Miembros", subtitle: "Buscar y ver perfiles" },
 ];

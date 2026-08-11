@@ -3,7 +3,7 @@ import { View, Text, FlatList, StyleSheet, ActivityIndicator, RefreshControl } f
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../context/AuthContext";
-import { publicService } from "../services/api";
+import { publicService, groupsService } from "../services/api";
 import { colors } from "../theme";
 
 function GroupCard({ item }) {
@@ -30,29 +30,33 @@ function GroupCard({ item }) {
   );
 }
 
-// Directorio público de grupos/ministerios: nombre, líder actual y cantidad
-// de miembros, vía el mismo patrón público scoped por church_id que el
-// resto del dashboard de miembro.
+// Directorio de grupos/ministerios: nombre, líder actual y cantidad de
+// miembros. Sirve tanto al dashboard de miembro (sin sesión, vía el
+// endpoint público scoped por church_id) como al home de staff (con
+// sesión, vía el endpoint autenticado que ya usa la app web) — mismo
+// componente, la fuente de datos cambia según quién esté conectado.
 export default function GroupsScreen() {
-  const { joinedChurch } = useAuth();
+  const { user, joinedChurch } = useAuth();
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
 
   const load = useCallback(async (isRefresh = false) => {
-    if (!joinedChurch?.id) return;
+    if (!user && !joinedChurch?.id) return;
     isRefresh ? setRefreshing(true) : setLoading(true);
     setError("");
     try {
-      const data = await publicService.getGroups(joinedChurch.id);
+      const data = user
+        ? await groupsService.getAll()
+        : await publicService.getGroups(joinedChurch.id);
       setGroups(data.groups || []);
     } catch {
       setError("No se pudieron cargar los grupos. Desliza para intentar de nuevo.");
     }
     setLoading(false);
     setRefreshing(false);
-  }, [joinedChurch?.id]);
+  }, [user, joinedChurch?.id]);
 
   useFocusEffect(
     useCallback(() => {
