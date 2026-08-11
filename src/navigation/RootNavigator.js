@@ -41,7 +41,7 @@ export default function RootNavigator() {
           <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         ) : (
           <>
-            <Stack.Screen name="Home" component={HomeScreen} options={{ title: "Congrega" }} />
+            <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
             <Stack.Screen name="ConferenceList" component={ConferenceListScreen} options={{ title: "Conferencias" }} />
             <Stack.Screen name="SessionPicker" component={SessionPickerScreen} />
             <Stack.Screen name="Scanner" component={ScannerScreen} />
