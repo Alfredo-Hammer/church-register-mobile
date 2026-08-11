@@ -37,6 +37,17 @@ export const authService = {
   },
 };
 
+// Sin token: es la puerta de entrada para alguien que todavía no tiene
+// cuenta — un miembro común, no del equipo. Mismo criterio que la pantalla
+// del salón: responde solo lo que ya es público (nombre, logo), nada que
+// identifique a una persona.
+export const publicService = {
+  resolveJoinCode: async (joinCode) => {
+    const response = await api.get(`/public/church/${encodeURIComponent(joinCode)}`);
+    return response.data;
+  },
+};
+
 export const conferenceService = {
   getAll: async () => {
     const response = await api.get("/conference");
