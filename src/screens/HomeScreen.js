@@ -1,9 +1,13 @@
+import { useCallback, useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
+import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../context/AuthContext";
 import ModuleCard from "../components/ModuleCard";
+import { announcementsService } from "../services/api";
+import { getLastSeenAnnouncementAt, hasUnseenAnnouncement } from "../utils/announcementsSeen";
 import { colors, gradient, ROLE_META, greetingForTime } from "../theme";
 
 // Módulos que se van a ir prendiendo con el tiempo — Conferencias es el
@@ -25,6 +29,23 @@ export default function HomeScreen({ navigation }) {
   const firstName = user?.fullName?.split(" ")[0] || "";
   const initial = (user?.fullName?.trim()?.charAt(0) || "?").toUpperCase();
   const role = ROLE_META[user?.role] || { label: user?.role || "", color: colors.muted };
+  const [hasNewAnnouncement, setHasNewAnnouncement] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        try {
+          const [data, lastSeenAt] = await Promise.all([
+            announcementsService.getAll(),
+            getLastSeenAnnouncementAt(),
+          ]);
+          setHasNewAnnouncement(hasUnseenAnnouncement(data.announcements, lastSeenAt));
+        } catch {
+          setHasNewAnnouncement(false);
+        }
+      })();
+    }, [])
+  );
 
   return (
     <View style={styles.container}>
@@ -62,6 +83,7 @@ export default function HomeScreen({ navigation }) {
               title={m.title}
               subtitle={m.subtitle}
               comingSoon={!m.screen}
+              badge={m.key === "announcements" && hasNewAnnouncement}
               onPress={() => m.screen && navigation.navigate(m.screen)}
             />
           ))}

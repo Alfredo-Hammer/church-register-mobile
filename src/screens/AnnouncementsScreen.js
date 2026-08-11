@@ -7,6 +7,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../context/AuthContext";
 import { announcementsService } from "../services/api";
+import { markAnnouncementsSeen } from "../utils/announcementsSeen";
 import { colors } from "../theme";
 
 const CAN_DELETE_ROLES = ["ADMIN", "PASTOR"];
@@ -61,6 +62,7 @@ export default function AnnouncementsScreen() {
     try {
       const data = await announcementsService.getAll();
       setAnnouncements(data.announcements || []);
+      if (data.announcements?.[0]) markAnnouncementsSeen(data.announcements[0].created_at);
     } catch {
       setError("No se pudieron cargar los avisos.");
     }

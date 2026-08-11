@@ -9,6 +9,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../context/AuthContext";
 import { publicService } from "../services/api";
+import { getLastSeenAnnouncementAt, markAnnouncementsSeen } from "../utils/announcementsSeen";
 import { colors, gradient, EVENT_TYPE_META, DAY_NAMES } from "../theme";
 
 function formatEventDate(iso) {
@@ -79,14 +80,21 @@ function formatAnnouncementDate(iso) {
   return new Date(iso).toLocaleDateString("es", { day: "numeric", month: "long" });
 }
 
-function AnnouncementCard({ item }) {
+function AnnouncementCard({ item, isNew }) {
   return (
     <View style={styles.announcementCard}>
       <View style={styles.announcementIcon}>
         <Ionicons name="megaphone" size={15} color={colors.warning} />
       </View>
       <View style={{ flex: 1 }}>
-        <Text style={styles.announcementTitle}>{item.title}</Text>
+        <View style={styles.announcementTitleRow}>
+          <Text style={styles.announcementTitle}>{item.title}</Text>
+          {isNew && (
+            <View style={styles.newPill}>
+              <Text style={styles.newPillText}>Nuevo</Text>
+            </View>
+          )}
+        </View>
         <Text style={styles.announcementBody} numberOfLines={3}>{item.body}</Text>
         <Text style={styles.announcementDate}>{formatAnnouncementDate(item.created_at)}</Text>
       </View>
@@ -194,6 +202,7 @@ export default function MemberHomeScreen({ navigation }) {
   const [events, setEvents] = useState([]);
   const [prayerDays, setPrayerDays] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
+  const [lastSeenAt, setLastSeenAt] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
@@ -211,6 +220,11 @@ export default function MemberHomeScreen({ navigation }) {
       setEvents(eventsData.events || []);
       setPrayerDays(prayerData.prayerDays || []);
       setAnnouncements(announcementsData.announcements || []);
+      const previousSeenAt = await getLastSeenAnnouncementAt();
+      setLastSeenAt(previousSeenAt);
+      if (announcementsData.announcements?.[0]) {
+        markAnnouncementsSeen(announcementsData.announcements[0].created_at);
+      }
     } catch {
       setError("No se pudo cargar la información. Desliza para intentar de nuevo.");
     }
@@ -287,7 +301,13 @@ export default function MemberHomeScreen({ navigation }) {
           <View>
             {announcements.length > 0 && (
               <View style={styles.announcementSection}>
-                {announcements.slice(0, 3).map((a) => <AnnouncementCard key={a.id} item={a} />)}
+                {announcements.slice(0, 3).map((a) => (
+                  <AnnouncementCard
+                    key={a.id}
+                    item={a}
+                    isNew={!lastSeenAt || new Date(a.created_at) > new Date(lastSeenAt)}
+                  />
+                ))}
               </View>
             )}
 
@@ -369,7 +389,10 @@ const styles = StyleSheet.create({
     backgroundColor: `${colors.warning}22`,
     alignItems: "center", justifyContent: "center",
   },
+  announcementTitleRow: { flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap" },
   announcementTitle: { fontSize: 14, fontWeight: "700", color: colors.text },
+  newPill: { backgroundColor: colors.danger, borderRadius: 999, paddingHorizontal: 7, paddingVertical: 2 },
+  newPillText: { color: "#fff", fontSize: 9.5, fontWeight: "800", textTransform: "uppercase" },
   announcementBody: { fontSize: 12.5, color: colors.muted, marginTop: 4, lineHeight: 18 },
   announcementDate: { fontSize: 11, color: colors.muted, marginTop: 6, textTransform: "capitalize" },
   nextCard: {

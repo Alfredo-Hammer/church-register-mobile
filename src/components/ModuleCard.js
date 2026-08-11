@@ -6,7 +6,7 @@ import { colors } from "../theme";
 // pero sin acción y con menos contraste — así la pantalla se siente como la
 // de una app con varios módulos, no un menú de una sola opción, sin
 // prometer algo que todavía no funciona.
-export default function ModuleCard({ icon, iconColor, title, subtitle, comingSoon, onPress }) {
+export default function ModuleCard({ icon, iconColor, title, subtitle, comingSoon, badge, onPress }) {
   return (
     <TouchableOpacity
       style={[styles.card, comingSoon && styles.cardDisabled]}
@@ -15,6 +15,7 @@ export default function ModuleCard({ icon, iconColor, title, subtitle, comingSoo
     >
       <View style={[styles.iconCircle, { backgroundColor: (comingSoon ? colors.muted : iconColor) + "22" }]}>
         <Ionicons name={icon} size={22} color={comingSoon ? colors.muted : iconColor} />
+        {badge && !comingSoon && <View style={styles.badgeDot} />}
       </View>
       <Text style={[styles.title, comingSoon && styles.mutedText]} numberOfLines={1}>{title}</Text>
       <Text style={[styles.subtitle, comingSoon && styles.mutedText]} numberOfLines={2}>
@@ -42,6 +43,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 10,
+  },
+  badgeDot: {
+    position: "absolute",
+    top: -1,
+    right: -1,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: colors.danger,
+    borderWidth: 2,
+    borderColor: colors.card,
   },
   title: { color: colors.text, fontSize: 14, fontWeight: "700", textAlign: "center" },
   subtitle: { color: colors.muted, fontSize: 11.5, marginTop: 3, lineHeight: 15, textAlign: "center" },
