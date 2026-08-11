@@ -6,6 +6,14 @@ import { colors, MEMBER_STATUS_META } from "../theme";
 
 const GENDER_LABELS = { MASCULINO: "Masculino", FEMENINO: "Femenino", OTRO: "Otro" };
 const AGE_GROUP_LABELS = { ADULTO: "Adulto", JOVEN: "Joven", NIÑO: "Niño" };
+const MARITAL_LABELS = {
+  SOLTERO: "Soltero/a", CASADO: "Casado/a", DIVORCIADO: "Divorciado/a",
+  VIUDO: "Viudo/a", UNION_LIBRE: "Unión libre",
+};
+
+function formatDate(d) {
+  return new Date(d).toLocaleDateString("es", { day: "numeric", month: "long", year: "numeric" });
+}
 
 function calcAge(birthDate) {
   if (!birthDate) return null;
@@ -101,6 +109,10 @@ export default function MemberDetailScreen({ route }) {
           value={member.birth_date ? `${new Date(member.birth_date).toLocaleDateString("es", { day: "numeric", month: "long", year: "numeric" })}${age !== null ? ` (${age} años)` : ""}` : null}
         />
         <InfoRow icon="person-outline" label="Sexo" value={GENDER_LABELS[member.gender]} />
+        <InfoRow icon="time-outline" label="Miembro desde" value={member.member_since ? formatDate(member.member_since) : null} />
+        <InfoRow icon="card-outline" label="Documento de identidad" value={member.document_id} />
+        <InfoRow icon="heart-outline" label="Estado civil" value={MARITAL_LABELS[member.marital_status]} />
+        <InfoRow icon="briefcase-outline" label="Ocupación" value={member.occupation} />
         <InfoRow icon="people-outline" label="Grupo etario" value={AGE_GROUP_LABELS[member.age_group]} />
         <InfoRow icon="school-outline" label="Grado" value={member.grade} />
         <InfoRow icon="person-circle-outline" label="Encargado/Tutor" value={guardianName} />
