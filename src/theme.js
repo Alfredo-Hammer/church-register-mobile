@@ -38,6 +38,30 @@ export const EVENT_TYPE_META = {
 // Mismo índice que day_of_week en prayer_days (0=Domingo … 6=Sábado).
 export const DAY_NAMES = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
+// Mismo criterio de color que la web (CLAUDE.md): verde=ACTIVO, rojo=INACTIVO,
+// amarillo=VISITANTE.
+export const MEMBER_STATUS_META = {
+  ACTIVO:    { label: "Activo",    color: "#34d399" },
+  INACTIVO:  { label: "Inactivo",  color: "#f87171" },
+  VISITANTE: { label: "Visitante", color: "#fbbf24" },
+};
+
+// Etapas del seguimiento de visitantes (visitors.stage).
+export const VISITOR_STAGE_META = {
+  PRIMERA_VISITA:  { label: "Primera visita",  color: "#60a5fa" },
+  EN_SEGUIMIENTO:  { label: "En seguimiento",  color: "#fbbf24" },
+  INTEGRADO:       { label: "Integrado",       color: "#34d399" },
+  INACTIVO:        { label: "Inactivo",        color: "#94a3b8" },
+};
+
+export const HOW_THEY_CAME_META = {
+  INVITADO:        "Invitado por alguien",
+  REDES_SOCIALES:  "Redes sociales",
+  PASO_POR_AQUI:   "Pasó por aquí",
+  BUSQUEDA_WEB:    "Búsqueda web",
+  OTRO:            "Otro",
+};
+
 export function greetingForTime(date = new Date()) {
   const h = date.getHours();
   if (h < 12) return "Buenos días";

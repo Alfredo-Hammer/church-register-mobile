@@ -20,8 +20,8 @@ const MODULES = [
   { key: "attendance", icon: "checkmark-done-circle-outline", iconColor: "#34d399", title: "Asistencia", subtitle: "Tomar lista de un evento", screen: "EventList" },
   { key: "groups", icon: "people-circle-outline", iconColor: "#f472b6", title: "Grupos", subtitle: "Ver ministerios y líderes", screen: "Groups" },
   { key: "announcements", icon: "megaphone-outline", iconColor: "#38bdf8", title: "Avisos", subtitle: "Publicar y ver anuncios", screen: "Announcements" },
-  { key: "visitors", icon: "person-add-outline", iconColor: "#fbbf24", title: "Visitantes", subtitle: "Registrar y dar seguimiento" },
-  { key: "members", icon: "people-outline", iconColor: "#a78bfa", title: "Miembros", subtitle: "Buscar y ver perfiles" },
+  { key: "visitors", icon: "person-add-outline", iconColor: "#fbbf24", title: "Visitantes", subtitle: "Buscar y ver seguimiento", screen: "Visitors" },
+  { key: "members", icon: "people-outline", iconColor: "#a78bfa", title: "Miembros", subtitle: "Buscar y ver perfiles", screen: "Members" },
 ];
 
 export default function HomeScreen({ navigation }) {

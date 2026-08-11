@@ -137,6 +137,21 @@ export const membersService = {
     const response = await api.get("/members", { params });
     return response.data;
   },
+  getById: async (id) => {
+    const response = await api.get(`/members/${id}`);
+    return response.data;
+  },
+};
+
+export const visitorsService = {
+  getAll: async (params) => {
+    const response = await api.get("/visitors", { params });
+    return response.data;
+  },
+  getById: async (id) => {
+    const response = await api.get(`/visitors/${id}`);
+    return response.data;
+  },
 };
 
 export default api;
