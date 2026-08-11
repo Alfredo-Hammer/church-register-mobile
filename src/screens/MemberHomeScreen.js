@@ -16,8 +16,19 @@ function formatEventDate(iso) {
   return `${date} · ${time}`;
 }
 
+// Una conferencia dura varios días — mostrar el rango completo en vez de
+// una sola fecha/hora, que solo tendría sentido para un evento puntual.
+function formatDateRange(startIso, endIso) {
+  const start = new Date(startIso);
+  const end = new Date(endIso);
+  const startLabel = start.toLocaleDateString("es", { day: "numeric", month: "long" });
+  const endLabel = end.toLocaleDateString("es", { day: "numeric", month: "long" });
+  return startLabel === endLabel ? startLabel : `${startLabel} – ${endLabel}`;
+}
+
 function EventCard({ item }) {
   const meta = EVENT_TYPE_META[item.event_type] || { label: item.event_type, color: colors.primary };
+  const isConference = item.kind === "conference";
   return (
     <View style={styles.eventCard}>
       <View style={[styles.eventDot, { backgroundColor: meta.color }]} />
@@ -28,7 +39,15 @@ function EventCard({ item }) {
             <Text style={[styles.eventBadgeText, { color: meta.color }]}>{meta.label}</Text>
           </View>
         </View>
-        <Text style={styles.eventDate}>{formatEventDate(item.date)}</Text>
+        <Text style={styles.eventDate}>
+          {isConference ? formatDateRange(item.date, item.end_date) : formatEventDate(item.date)}
+        </Text>
+        {isConference && item.location ? (
+          <View style={styles.locationRow}>
+            <Ionicons name="location-outline" size={12} color={colors.muted} />
+            <Text style={styles.eventLocation}>{item.location}</Text>
+          </View>
+        ) : null}
         {item.description ? (
           <Text style={styles.eventDescription} numberOfLines={2}>{item.description}</Text>
         ) : null}
@@ -136,6 +155,8 @@ const styles = StyleSheet.create({
   eventBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 },
   eventBadgeText: { fontSize: 10.5, fontWeight: "700" },
   eventDate: { fontSize: 12.5, color: colors.muted, marginTop: 4, textTransform: "capitalize" },
+  locationRow: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 3 },
+  eventLocation: { fontSize: 12, color: colors.muted },
   eventDescription: { fontSize: 12.5, color: colors.muted, marginTop: 6 },
   emptyBox: {
     alignItems: "center", gap: 8,
