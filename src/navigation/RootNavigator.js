@@ -8,6 +8,8 @@ import HomeScreen from "../screens/HomeScreen";
 import ConferenceListScreen from "../screens/ConferenceListScreen";
 import SessionPickerScreen from "../screens/SessionPickerScreen";
 import ScannerScreen from "../screens/ScannerScreen";
+import EventListScreen from "../screens/EventListScreen";
+import AttendanceScreen from "../screens/AttendanceScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -45,6 +47,8 @@ export default function RootNavigator() {
             <Stack.Screen name="ConferenceList" component={ConferenceListScreen} options={{ title: "Conferencias" }} />
             <Stack.Screen name="SessionPicker" component={SessionPickerScreen} />
             <Stack.Screen name="Scanner" component={ScannerScreen} />
+            <Stack.Screen name="EventList" component={EventListScreen} options={{ title: "Asistencia" }} />
+            <Stack.Screen name="Attendance" component={AttendanceScreen} />
           </>
         )}
       </Stack.Navigator>

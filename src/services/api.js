@@ -56,4 +56,34 @@ export const conferenceService = {
   },
 };
 
+export const eventsService = {
+  getAll: async (params) => {
+    const response = await api.get("/events", { params });
+    return response.data;
+  },
+  getAttendance: async (eventId) => {
+    const response = await api.get(`/events/${eventId}/attendance`);
+    return response.data;
+  },
+  recordBulkAttendance: async (eventId, memberIds) => {
+    const response = await api.post(`/events/${eventId}/attendance/bulk`, { memberIds });
+    return response.data;
+  },
+  deleteAttendance: async (eventId, attendanceId) => {
+    const response = await api.delete(`/events/${eventId}/attendance/${attendanceId}`);
+    return response.data;
+  },
+  updateGuestCount: async (eventId, guestCount) => {
+    const response = await api.put(`/events/${eventId}/guest-count`, { guestCount });
+    return response.data;
+  },
+};
+
+export const membersService = {
+  getAll: async (params) => {
+    const response = await api.get("/members", { params });
+    return response.data;
+  },
+};
+
 export default api;

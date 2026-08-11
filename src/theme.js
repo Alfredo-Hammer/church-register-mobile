@@ -27,6 +27,14 @@ export const ROLE_META = {
   LIDER:     { label: "Líder",         color: "#fbbf24" },
 };
 
+// Mismos 4 tipos que valida el CHECK de la tabla events en Postgres.
+export const EVENT_TYPE_META = {
+  CULTO:       { label: "Culto",           color: "#60a5fa" },
+  REUNION:     { label: "Reunión",         color: "#a78bfa" },
+  ESPECIAL:    { label: "Evento Especial", color: "#fbbf24" },
+  CONFERENCIA: { label: "Conferencia",     color: "#f472b6" },
+};
+
 export function greetingForTime(date = new Date()) {
   const h = date.getHours();
   if (h < 12) return "Buenos días";
