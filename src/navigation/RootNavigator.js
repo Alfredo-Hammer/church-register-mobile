@@ -7,6 +7,7 @@ import WelcomeScreen from "../screens/WelcomeScreen";
 import JoinChurchScreen from "../screens/JoinChurchScreen";
 import MemberHomeScreen from "../screens/MemberHomeScreen";
 import GroupsScreen from "../screens/GroupsScreen";
+import AnnouncementsScreen from "../screens/AnnouncementsScreen";
 import LoginScreen from "../screens/LoginScreen";
 import HomeScreen from "../screens/HomeScreen";
 import ConferenceListScreen from "../screens/ConferenceListScreen";
@@ -52,6 +53,7 @@ export default function RootNavigator() {
             <Stack.Screen name="EventList" component={EventListScreen} options={{ title: "Asistencia" }} />
             <Stack.Screen name="Attendance" component={AttendanceScreen} />
             <Stack.Screen name="Groups" component={GroupsScreen} options={{ title: "Grupos y ministerios" }} />
+            <Stack.Screen name="Announcements" component={AnnouncementsScreen} options={{ title: "Avisos" }} />
           </>
         ) : joinedChurch ? (
           <>

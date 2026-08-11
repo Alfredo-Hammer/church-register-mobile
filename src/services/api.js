@@ -58,6 +58,25 @@ export const publicService = {
     const response = await api.get(`/public/church/${churchId}/groups`);
     return response.data;
   },
+  getAnnouncements: async (churchId) => {
+    const response = await api.get(`/public/church/${churchId}/announcements`);
+    return response.data;
+  },
+};
+
+export const announcementsService = {
+  getAll: async () => {
+    const response = await api.get("/announcements");
+    return response.data;
+  },
+  create: async (title, body) => {
+    const response = await api.post("/announcements", { title, body });
+    return response.data;
+  },
+  remove: async (id) => {
+    const response = await api.delete(`/announcements/${id}`);
+    return response.data;
+  },
 };
 
 export const conferenceService = {

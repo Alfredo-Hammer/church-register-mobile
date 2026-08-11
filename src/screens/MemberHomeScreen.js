@@ -75,6 +75,25 @@ function QuickAction({ icon, label, onPress }) {
   );
 }
 
+function formatAnnouncementDate(iso) {
+  return new Date(iso).toLocaleDateString("es", { day: "numeric", month: "long" });
+}
+
+function AnnouncementCard({ item }) {
+  return (
+    <View style={styles.announcementCard}>
+      <View style={styles.announcementIcon}>
+        <Ionicons name="megaphone" size={15} color={colors.warning} />
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.announcementTitle}>{item.title}</Text>
+        <Text style={styles.announcementBody} numberOfLines={3}>{item.body}</Text>
+        <Text style={styles.announcementDate}>{formatAnnouncementDate(item.created_at)}</Text>
+      </View>
+    </View>
+  );
+}
+
 function NextUpCard({ item }) {
   if (!item) return null;
   const meta = EVENT_TYPE_META[item.event_type] || { label: "Oración", color: colors.primary };
@@ -174,6 +193,7 @@ export default function MemberHomeScreen({ navigation }) {
   const { joinedChurch, leaveChurch } = useAuth();
   const [events, setEvents] = useState([]);
   const [prayerDays, setPrayerDays] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
@@ -183,12 +203,14 @@ export default function MemberHomeScreen({ navigation }) {
     isRefresh ? setRefreshing(true) : setLoading(true);
     setError("");
     try {
-      const [eventsData, prayerData] = await Promise.all([
+      const [eventsData, prayerData, announcementsData] = await Promise.all([
         publicService.getUpcomingEvents(joinedChurch.id),
         publicService.getPrayerDays(joinedChurch.id),
+        publicService.getAnnouncements(joinedChurch.id),
       ]);
       setEvents(eventsData.events || []);
       setPrayerDays(prayerData.prayerDays || []);
+      setAnnouncements(announcementsData.announcements || []);
     } catch {
       setError("No se pudo cargar la información. Desliza para intentar de nuevo.");
     }
@@ -263,6 +285,12 @@ export default function MemberHomeScreen({ navigation }) {
         }
         ListHeaderComponent={
           <View>
+            {announcements.length > 0 && (
+              <View style={styles.announcementSection}>
+                {announcements.slice(0, 3).map((a) => <AnnouncementCard key={a.id} item={a} />)}
+              </View>
+            )}
+
             <NextUpCard item={nextItem} />
 
             {prayerDays.length > 0 && (
@@ -329,6 +357,21 @@ const styles = StyleSheet.create({
     marginTop: 22, marginBottom: 10,
   },
   metaLineRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 4 },
+  announcementSection: { width: "100%", gap: 10 },
+  announcementCard: {
+    flexDirection: "row", gap: 10,
+    backgroundColor: `${colors.warning}14`,
+    borderWidth: 1, borderColor: `${colors.warning}40`,
+    borderRadius: 14, padding: 14,
+  },
+  announcementIcon: {
+    width: 28, height: 28, borderRadius: 9, marginTop: 1,
+    backgroundColor: `${colors.warning}22`,
+    alignItems: "center", justifyContent: "center",
+  },
+  announcementTitle: { fontSize: 14, fontWeight: "700", color: colors.text },
+  announcementBody: { fontSize: 12.5, color: colors.muted, marginTop: 4, lineHeight: 18 },
+  announcementDate: { fontSize: 11, color: colors.muted, marginTop: 6, textTransform: "capitalize" },
   nextCard: {
     backgroundColor: `${colors.primary}17`,
     borderWidth: 1, borderColor: `${colors.primary}55`,
