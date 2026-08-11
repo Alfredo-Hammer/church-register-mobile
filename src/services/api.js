@@ -61,6 +61,10 @@ export const eventsService = {
     const response = await api.get("/events", { params });
     return response.data;
   },
+  getById: async (eventId) => {
+    const response = await api.get(`/events/${eventId}`);
+    return response.data;
+  },
   getAttendance: async (eventId) => {
     const response = await api.get(`/events/${eventId}/attendance`);
     return response.data;

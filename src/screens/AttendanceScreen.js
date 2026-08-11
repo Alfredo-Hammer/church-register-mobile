@@ -30,11 +30,16 @@ export default function AttendanceScreen({ route, navigation }) {
   useEffect(() => {
     (async () => {
       try {
-        const [membersData, attendanceData] = await Promise.all([
+        const [membersData, attendanceData, eventData] = await Promise.all([
           membersService.getAll({ limit: 1000, status: "ACTIVO" }),
           eventsService.getAttendance(eventId),
+          eventsService.getById(eventId),
         ]);
         setMembers(membersData.members);
+        // Sin esto el contador siempre arrancaba en 0 — si nadie tocaba el
+        // stepper, "Guardar" terminaba pisando el valor real con 0 en vez
+        // de dejarlo como estaba.
+        setGuestCount(eventData.event?.guest_count ?? eventData.guestCount ?? 0);
 
         const recordsMap = new Map();
         const selectedIds = new Set();
