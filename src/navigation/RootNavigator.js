@@ -6,6 +6,7 @@ import { colors } from "../theme";
 import WelcomeScreen from "../screens/WelcomeScreen";
 import JoinChurchScreen from "../screens/JoinChurchScreen";
 import MemberHomeScreen from "../screens/MemberHomeScreen";
+import GroupsScreen from "../screens/GroupsScreen";
 import LoginScreen from "../screens/LoginScreen";
 import HomeScreen from "../screens/HomeScreen";
 import ConferenceListScreen from "../screens/ConferenceListScreen";
@@ -52,7 +53,10 @@ export default function RootNavigator() {
             <Stack.Screen name="Attendance" component={AttendanceScreen} />
           </>
         ) : joinedChurch ? (
-          <Stack.Screen name="MemberHome" component={MemberHomeScreen} options={{ headerShown: false }} />
+          <>
+            <Stack.Screen name="MemberHome" component={MemberHomeScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="Groups" component={GroupsScreen} options={{ title: "Grupos y ministerios" }} />
+          </>
         ) : (
           <>
             <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />

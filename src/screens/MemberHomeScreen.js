@@ -170,7 +170,7 @@ function EventCard({ item }) {
 // hay sesión de miembro real, solo la asociación dispositivo↔iglesia del
 // código de invitación). Historial personal y autoregistro quedan para
 // cuando exista una identidad de miembro de verdad.
-export default function MemberHomeScreen() {
+export default function MemberHomeScreen({ navigation }) {
   const { joinedChurch, leaveChurch } = useAuth();
   const [events, setEvents] = useState([]);
   const [prayerDays, setPrayerDays] = useState([]);
@@ -237,19 +237,18 @@ export default function MemberHomeScreen() {
             <Text style={styles.pastorName}>Pastor {joinedChurch.pastorName}</Text>
           ) : null}
 
-          {(joinedChurch?.phone || joinedChurch?.address || joinedChurch?.website) && (
-            <View style={styles.quickActions}>
-              {joinedChurch?.phone && (
-                <QuickAction icon="call-outline" label="Llamar" onPress={() => openPhone(joinedChurch.phone)} />
-              )}
-              {joinedChurch?.address && (
-                <QuickAction icon="navigate-outline" label="Cómo llegar" onPress={() => openMaps(joinedChurch.address)} />
-              )}
-              {joinedChurch?.website && (
-                <QuickAction icon="globe-outline" label="Sitio web" onPress={() => openWebsite(joinedChurch.website)} />
-              )}
-            </View>
-          )}
+          <View style={styles.quickActions}>
+            <QuickAction icon="people-outline" label="Grupos" onPress={() => navigation.navigate("Groups")} />
+            {joinedChurch?.phone && (
+              <QuickAction icon="call-outline" label="Llamar" onPress={() => openPhone(joinedChurch.phone)} />
+            )}
+            {joinedChurch?.address && (
+              <QuickAction icon="navigate-outline" label="Cómo llegar" onPress={() => openMaps(joinedChurch.address)} />
+            )}
+            {joinedChurch?.website && (
+              <QuickAction icon="globe-outline" label="Sitio web" onPress={() => openWebsite(joinedChurch.website)} />
+            )}
+          </View>
         </SafeAreaView>
       </LinearGradient>
 
