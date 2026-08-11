@@ -46,6 +46,10 @@ export const publicService = {
     const response = await api.get(`/public/church/${encodeURIComponent(joinCode)}`);
     return response.data;
   },
+  getUpcomingEvents: async (churchId) => {
+    const response = await api.get(`/public/church/${churchId}/events`);
+    return response.data;
+  },
 };
 
 export const conferenceService = {
