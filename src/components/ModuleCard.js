@@ -32,6 +32,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: 16,
     padding: 14,
+    alignItems: "center",
   },
   cardDisabled: { opacity: 0.55 },
   iconCircle: {
@@ -42,7 +43,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 10,
   },
-  title: { color: colors.text, fontSize: 14, fontWeight: "700" },
-  subtitle: { color: colors.muted, fontSize: 11.5, marginTop: 3, lineHeight: 15 },
+  title: { color: colors.text, fontSize: 14, fontWeight: "700", textAlign: "center" },
+  subtitle: { color: colors.muted, fontSize: 11.5, marginTop: 3, lineHeight: 15, textAlign: "center" },
   mutedText: { color: colors.muted },
 });
