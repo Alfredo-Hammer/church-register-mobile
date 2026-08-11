@@ -7,7 +7,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../context/AuthContext";
 import { publicService } from "../services/api";
-import { colors, EVENT_TYPE_META } from "../theme";
+import { colors, EVENT_TYPE_META, DAY_NAMES } from "../theme";
 
 function formatEventDate(iso) {
   const d = new Date(iso);
@@ -24,6 +24,33 @@ function formatDateRange(startIso, endIso) {
   const startLabel = start.toLocaleDateString("es", { day: "numeric", month: "long" });
   const endLabel = end.toLocaleDateString("es", { day: "numeric", month: "long" });
   return startLabel === endLabel ? startLabel : `${startLabel} – ${endLabel}`;
+}
+
+// "HH:MM:SS" tal como lo devuelve Postgres para una columna TIME — se arma
+// una fecha cualquiera solo para reusar el formateador de hora del sistema.
+function formatTime(timeStr) {
+  if (!timeStr) return "";
+  const [h, m] = timeStr.split(":");
+  const d = new Date(2000, 0, 1, Number(h), Number(m));
+  return d.toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit" });
+}
+
+function PrayerDayRow({ item }) {
+  return (
+    <View style={styles.prayerRow}>
+      <View style={styles.prayerDayPill}>
+        <Text style={styles.prayerDayPillText}>{DAY_NAMES[item.day_of_week].slice(0, 3)}</Text>
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.prayerName}>{item.name}</Text>
+        <Text style={styles.prayerMeta}>
+          {DAY_NAMES[item.day_of_week]} · {formatTime(item.start_time)}
+          {item.end_time ? ` – ${formatTime(item.end_time)}` : ""}
+          {item.location ? ` · ${item.location}` : ""}
+        </Text>
+      </View>
+    </View>
+  );
 }
 
 function EventCard({ item }) {
@@ -64,19 +91,24 @@ function EventCard({ item }) {
 export default function MemberHomeScreen() {
   const { joinedChurch, leaveChurch } = useAuth();
   const [events, setEvents] = useState([]);
+  const [prayerDays, setPrayerDays] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
 
-  const loadEvents = useCallback(async (isRefresh = false) => {
+  const loadDashboard = useCallback(async (isRefresh = false) => {
     if (!joinedChurch?.id) return;
     isRefresh ? setRefreshing(true) : setLoading(true);
     setError("");
     try {
-      const data = await publicService.getUpcomingEvents(joinedChurch.id);
-      setEvents(data.events || []);
+      const [eventsData, prayerData] = await Promise.all([
+        publicService.getUpcomingEvents(joinedChurch.id),
+        publicService.getPrayerDays(joinedChurch.id),
+      ]);
+      setEvents(eventsData.events || []);
+      setPrayerDays(prayerData.prayerDays || []);
     } catch {
-      setError("No se pudieron cargar los eventos. Desliza para intentar de nuevo.");
+      setError("No se pudo cargar la información. Desliza para intentar de nuevo.");
     }
     setLoading(false);
     setRefreshing(false);
@@ -84,8 +116,8 @@ export default function MemberHomeScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      loadEvents();
-    }, [loadEvents])
+      loadDashboard();
+    }, [loadDashboard])
   );
 
   return (
@@ -96,7 +128,7 @@ export default function MemberHomeScreen() {
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => <EventCard item={item} />}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={() => loadEvents(true)} tintColor={colors.primary} />
+        <RefreshControl refreshing={refreshing} onRefresh={() => loadDashboard(true)} tintColor={colors.primary} />
       }
       ListHeaderComponent={
         <View style={styles.header}>
@@ -108,6 +140,14 @@ export default function MemberHomeScreen() {
             </View>
           )}
           <Text style={styles.churchName}>{joinedChurch?.name}</Text>
+
+          {prayerDays.length > 0 && (
+            <View style={styles.prayerSection}>
+              <Text style={styles.sectionLabel}>Días de oración</Text>
+              {prayerDays.map((pd) => <PrayerDayRow key={pd.id} item={pd} />)}
+            </View>
+          )}
+
           <Text style={styles.sectionLabel}>Próximos eventos</Text>
         </View>
       }
@@ -144,6 +184,19 @@ const styles = StyleSheet.create({
   },
   churchName: { fontSize: 19, fontWeight: "800", color: colors.text, textAlign: "center" },
   sectionLabel: { fontSize: 13, fontWeight: "700", color: colors.muted, marginTop: 24, alignSelf: "flex-start" },
+  prayerSection: { width: "100%" },
+  prayerRow: {
+    flexDirection: "row", alignItems: "center", gap: 12,
+    backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border,
+    borderRadius: 14, padding: 12, marginTop: 10,
+  },
+  prayerDayPill: {
+    width: 42, height: 42, borderRadius: 12,
+    backgroundColor: colors.cardAlt, alignItems: "center", justifyContent: "center",
+  },
+  prayerDayPillText: { fontSize: 11, fontWeight: "800", color: colors.primary, textTransform: "uppercase" },
+  prayerName: { fontSize: 14, fontWeight: "700", color: colors.text },
+  prayerMeta: { fontSize: 12, color: colors.muted, marginTop: 2 },
   eventCard: {
     flexDirection: "row", gap: 12,
     backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border,

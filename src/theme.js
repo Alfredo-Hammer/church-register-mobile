@@ -35,6 +35,9 @@ export const EVENT_TYPE_META = {
   CONFERENCIA: { label: "Conferencia",     color: "#f472b6" },
 };
 
+// Mismo índice que day_of_week en prayer_days (0=Domingo … 6=Sábado).
+export const DAY_NAMES = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+
 export function greetingForTime(date = new Date()) {
   const h = date.getHours();
   if (h < 12) return "Buenos días";

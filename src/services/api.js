@@ -50,6 +50,10 @@ export const publicService = {
     const response = await api.get(`/public/church/${churchId}/events`);
     return response.data;
   },
+  getPrayerDays: async (churchId) => {
+    const response = await api.get(`/public/church/${churchId}/prayer-days`);
+    return response.data;
+  },
 };
 
 export const conferenceService = {
