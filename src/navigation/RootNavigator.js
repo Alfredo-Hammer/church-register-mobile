@@ -12,6 +12,8 @@ import MembersScreen from "../screens/MembersScreen";
 import MemberDetailScreen from "../screens/MemberDetailScreen";
 import VisitorsScreen from "../screens/VisitorsScreen";
 import VisitorDetailScreen from "../screens/VisitorDetailScreen";
+import BaptismsScreen from "../screens/BaptismsScreen";
+import BaptismDetailScreen from "../screens/BaptismDetailScreen";
 import LoginScreen from "../screens/LoginScreen";
 import HomeScreen from "../screens/HomeScreen";
 import ConferenceListScreen from "../screens/ConferenceListScreen";
@@ -62,6 +64,8 @@ export default function RootNavigator() {
             <Stack.Screen name="MemberDetail" component={MemberDetailScreen} options={{ title: "Miembro" }} />
             <Stack.Screen name="Visitors" component={VisitorsScreen} options={{ title: "Visitantes" }} />
             <Stack.Screen name="VisitorDetail" component={VisitorDetailScreen} options={{ title: "Visitante" }} />
+            <Stack.Screen name="BaptismList" component={BaptismsScreen} options={{ title: "Bautismos" }} />
+            <Stack.Screen name="BaptismDetail" component={BaptismDetailScreen} options={{ title: "Bautismo" }} />
           </>
         ) : joinedChurch ? (
           <>

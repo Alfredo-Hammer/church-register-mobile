@@ -22,6 +22,7 @@ const MODULES = [
   { key: "announcements", icon: "megaphone-outline", iconColor: "#38bdf8", title: "Avisos", subtitle: "Publicar y ver anuncios", screen: "Announcements" },
   { key: "visitors", icon: "person-add-outline", iconColor: "#fbbf24", title: "Visitantes", subtitle: "Buscar y ver seguimiento", screen: "Visitors" },
   { key: "members", icon: "people-outline", iconColor: "#a78bfa", title: "Miembros", subtitle: "Buscar y ver perfiles", screen: "Members" },
+  { key: "baptisms", icon: "water-outline", iconColor: "#22d3ee", title: "Bautismos", subtitle: "Ver historial de bautismos", screen: "BaptismList" },
 ];
 
 export default function HomeScreen({ navigation }) {

@@ -154,4 +154,15 @@ export const visitorsService = {
   },
 };
 
+export const baptismsService = {
+  getAll: async (params) => {
+    const response = await api.get("/baptisms", { params });
+    return response.data;
+  },
+  getById: async (id) => {
+    const response = await api.get(`/baptisms/${id}`);
+    return response.data;
+  },
+};
+
 export default api;
