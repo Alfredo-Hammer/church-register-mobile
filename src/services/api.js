@@ -130,6 +130,10 @@ export const groupsService = {
     const response = await api.get("/groups");
     return response.data;
   },
+  getStats: async () => {
+    const response = await api.get("/groups/stats");
+    return response.data;
+  },
 };
 
 export const membersService = {
@@ -139,6 +143,10 @@ export const membersService = {
   },
   getById: async (id) => {
     const response = await api.get(`/members/${id}`);
+    return response.data;
+  },
+  getStats: async () => {
+    const response = await api.get("/members/stats");
     return response.data;
   },
 };
@@ -152,6 +160,10 @@ export const visitorsService = {
     const response = await api.get(`/visitors/${id}`);
     return response.data;
   },
+  getStats: async () => {
+    const response = await api.get("/visitors/stats");
+    return response.data;
+  },
 };
 
 export const baptismsService = {
@@ -161,6 +173,23 @@ export const baptismsService = {
   },
   getById: async (id) => {
     const response = await api.get(`/baptisms/${id}`);
+    return response.data;
+  },
+  getStats: async (params) => {
+    const response = await api.get("/baptisms/stats", { params });
+    return response.data;
+  },
+};
+
+// Montos — el backend exige ADMIN/PASTOR/TESORERO en estas dos rutas, así
+// que solo se llaman cuando el rol en sesión califica (ver ResumenScreen).
+export const financesService = {
+  getSummary: async (params) => {
+    const response = await api.get("/finances/summary", { params });
+    return response.data;
+  },
+  getMonthly: async (params) => {
+    const response = await api.get("/finances/monthly", { params });
     return response.data;
   },
 };
@@ -183,6 +212,10 @@ export const activitiesService = {
   },
   getById: async (id) => {
     const response = await api.get(`/activities/${id}`);
+    return response.data;
+  },
+  getStats: async () => {
+    const response = await api.get("/activities/stats");
     return response.data;
   },
 };

@@ -5,15 +5,15 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../context/AuthContext";
-import ModuleCard from "../components/ModuleCard";
-import { announcementsService } from "../services/api";
+import SideMenu from "../components/SideMenu";
+import { announcementsService, membersService, visitorsService, groupsService } from "../services/api";
 import { getLastSeenAnnouncementAt, hasUnseenAnnouncement } from "../utils/announcementsSeen";
 import { colors, gradient, ROLE_META, greetingForTime } from "../theme";
 
-// Eventos, Actividades y Miembros ya no están acá — tienen su propia
-// pestaña fija en la barra inferior (uso diario) y esta grilla se quedó
-// con lo de uso más esporádico.
-const MODULES = [
+// Conferencias, Grupos, Avisos, Visitantes, Bautismos y Líderes son de uso
+// más esporádico que Eventos/Actividades/Miembros (que ya tienen su propia
+// pestaña) — viven en el menú lateral en vez de ocupar la pantalla principal.
+const MENU_ITEMS = [
   { key: "conference", icon: "qr-code-outline", iconColor: "#60a5fa", title: "Conferencias", subtitle: "Escanear gafetes y ver asistencia", screen: "ConferenceList" },
   { key: "groups", icon: "people-circle-outline", iconColor: "#f472b6", title: "Grupos", subtitle: "Ver ministerios y líderes", screen: "Groups" },
   { key: "announcements", icon: "megaphone-outline", iconColor: "#38bdf8", title: "Avisos", subtitle: "Publicar y ver anuncios", screen: "Announcements" },
@@ -22,12 +22,26 @@ const MODULES = [
   { key: "leaders", icon: "ribbon-outline", iconColor: "#fb923c", title: "Líderes", subtitle: "Cargos por grupo y área", screen: "Leaders" },
 ];
 
+function MiniStat({ icon, iconColor, label, value }) {
+  return (
+    <View style={styles.miniStat}>
+      <View style={[styles.miniStatIcon, { backgroundColor: `${iconColor}22` }]}>
+        <Ionicons name={icon} size={15} color={iconColor} />
+      </View>
+      <Text style={styles.miniStatValue}>{value ?? "—"}</Text>
+      <Text style={styles.miniStatLabel}>{label}</Text>
+    </View>
+  );
+}
+
 export default function HomeScreen({ navigation }) {
   const { user, logout } = useAuth();
   const firstName = user?.fullName?.split(" ")[0] || "";
   const initial = (user?.fullName?.trim()?.charAt(0) || "?").toUpperCase();
   const role = ROLE_META[user?.role] || { label: user?.role || "", color: colors.muted };
   const [hasNewAnnouncement, setHasNewAnnouncement] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [quickStats, setQuickStats] = useState(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -42,6 +56,20 @@ export default function HomeScreen({ navigation }) {
           setHasNewAnnouncement(false);
         }
       })();
+      (async () => {
+        try {
+          const [ms, vs, gs] = await Promise.all([
+            membersService.getStats(),
+            visitorsService.getStats(),
+            groupsService.getStats(),
+          ]);
+          setQuickStats({
+            active: ms.active,
+            visitors: vs.stats?.total,
+            groups: gs.total,
+          });
+        } catch { /* silencioso */ }
+      })();
     }, [])
   );
 
@@ -53,9 +81,14 @@ export default function HomeScreen({ navigation }) {
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>{initial}</Text>
             </View>
-            <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-              <Ionicons name="log-out-outline" size={20} color="#fff" />
-            </TouchableOpacity>
+            <View style={styles.headerActions}>
+              <TouchableOpacity style={styles.iconButton} onPress={() => setMenuOpen(true)}>
+                <Ionicons name="menu-outline" size={20} color="#fff" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.iconButton} onPress={logout}>
+                <Ionicons name="log-out-outline" size={20} color="#fff" />
+              </TouchableOpacity>
+            </View>
           </View>
 
           <Text style={styles.greeting}>{greetingForTime()},</Text>
@@ -71,23 +104,36 @@ export default function HomeScreen({ navigation }) {
       </LinearGradient>
 
       <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent}>
-        <Text style={styles.sectionTitle}>Módulos</Text>
-        <View style={styles.grid}>
-          {MODULES.map((m) => (
-            <ModuleCard
-              key={m.key}
-              icon={m.icon}
-              iconColor={m.iconColor}
-              title={m.title}
-              subtitle={m.subtitle}
-              comingSoon={!m.screen}
-              badge={m.key === "announcements" && hasNewAnnouncement}
-              onPress={() => m.screen && navigation.navigate(m.screen)}
-            />
-          ))}
+        <View style={styles.summaryRow}>
+          <Text style={styles.sectionTitle}>Resumen rápido</Text>
+          <TouchableOpacity onPress={() => navigation.navigate("ResumenTab")}>
+            <Text style={styles.summaryLink}>Ver todo</Text>
+          </TouchableOpacity>
         </View>
-        <Text style={styles.footerNote}>Más módulos próximamente</Text>
+        <View style={styles.miniStatsRow}>
+          <MiniStat icon="people-outline" iconColor="#60a5fa" label="Miembros" value={quickStats?.active} />
+          <MiniStat icon="person-add-outline" iconColor="#fbbf24" label="Visitantes" value={quickStats?.visitors} />
+          <MiniStat icon="people-circle-outline" iconColor="#f472b6" label="Grupos" value={quickStats?.groups} />
+        </View>
+
+        {hasNewAnnouncement && (
+          <TouchableOpacity
+            style={styles.announcementBanner}
+            onPress={() => navigation.navigate("Announcements")}
+          >
+            <Ionicons name="megaphone-outline" size={16} color="#38bdf8" />
+            <Text style={styles.announcementText}>Hay un aviso nuevo — toca para verlo</Text>
+            <Ionicons name="chevron-forward" size={14} color={colors.muted} />
+          </TouchableOpacity>
+        )}
       </ScrollView>
+
+      <SideMenu
+        visible={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        items={MENU_ITEMS.map((m) => ({ ...m, subtitle: m.key === "announcements" && hasNewAnnouncement ? "● " + m.subtitle : m.subtitle }))}
+        onNavigate={(screen) => navigation.navigate(screen)}
+      />
     </View>
   );
 }
@@ -115,7 +161,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   avatarText: { color: "#fff", fontSize: 17, fontWeight: "700" },
-  logoutButton: {
+  headerActions: { flexDirection: "row", gap: 8 },
+  iconButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
@@ -136,14 +183,27 @@ const styles = StyleSheet.create({
   churchName: { color: "rgba(255,255,255,0.75)", fontSize: 13, flexShrink: 1 },
   body: { flex: 1 },
   bodyContent: { padding: 20, paddingBottom: 40 },
+  summaryRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
   sectionTitle: {
     fontSize: 12,
     fontWeight: "700",
     color: colors.muted,
     textTransform: "uppercase",
     letterSpacing: 0.5,
-    marginBottom: 12,
   },
-  grid: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
-  footerNote: { color: colors.muted, fontSize: 12, textAlign: "center", marginTop: 20 },
+  summaryLink: { fontSize: 12.5, fontWeight: "700", color: colors.primary },
+  miniStatsRow: { flexDirection: "row", gap: 10 },
+  miniStat: {
+    flex: 1, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border,
+    borderRadius: 14, padding: 12, gap: 4,
+  },
+  miniStatIcon: { width: 26, height: 26, borderRadius: 8, alignItems: "center", justifyContent: "center", marginBottom: 2 },
+  miniStatValue: { fontSize: 17, fontWeight: "800", color: colors.text },
+  miniStatLabel: { fontSize: 10.5, color: colors.muted, fontWeight: "600" },
+  announcementBanner: {
+    flexDirection: "row", alignItems: "center", gap: 8,
+    backgroundColor: "#38bdf822", borderWidth: 1, borderColor: "#38bdf840",
+    borderRadius: 12, padding: 12, marginTop: 16,
+  },
+  announcementText: { flex: 1, fontSize: 12.5, color: colors.text, fontWeight: "600" },
 });

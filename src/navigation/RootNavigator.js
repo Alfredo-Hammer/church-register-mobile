@@ -20,6 +20,7 @@ import LeadersScreen from "../screens/LeadersScreen";
 import LeaderDetailScreen from "../screens/LeaderDetailScreen";
 import ActivitiesScreen from "../screens/ActivitiesScreen";
 import ActivityDetailScreen from "../screens/ActivityDetailScreen";
+import ResumenScreen from "../screens/ResumenScreen";
 import LoginScreen from "../screens/LoginScreen";
 import HomeScreen from "../screens/HomeScreen";
 import ConferenceListScreen from "../screens/ConferenceListScreen";
@@ -102,6 +103,7 @@ const TAB_ICONS = {
   EventosTab: "calendar-outline",
   ActividadesTab: "flag-outline",
   MiembrosTab: "people-outline",
+  ResumenTab: "stats-chart-outline",
 };
 
 function StaffTabs() {
@@ -121,6 +123,7 @@ function StaffTabs() {
       <Tab.Screen name="EventosTab" component={EventosStackScreen} options={{ title: "Eventos" }} />
       <Tab.Screen name="ActividadesTab" component={ActividadesStackScreen} options={{ title: "Actividades" }} />
       <Tab.Screen name="MiembrosTab" component={MiembrosStackScreen} options={{ title: "Miembros" }} />
+      <Tab.Screen name="ResumenTab" component={ResumenScreen} options={{ title: "Resumen", headerShown: true }} />
     </Tab.Navigator>
   );
 }
