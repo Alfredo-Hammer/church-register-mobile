@@ -62,6 +62,24 @@ export const HOW_THEY_CAME_META = {
   OTRO:            "Otro",
 };
 
+// Mismas 6 categorías que valida el CHECK de la tabla activities.
+export const ACTIVITY_CATEGORY_META = {
+  RECOLECCION_FONDOS:  { label: "Recolección de fondos", color: "#34d399" },
+  SERVICIO_COMUNITARIO: { label: "Servicio comunitario",  color: "#60a5fa" },
+  CAPACITACION:         { label: "Capacitación",          color: "#a78bfa" },
+  EVANGELISMO:          { label: "Evangelismo",           color: "#f472b6" },
+  SOCIAL:               { label: "Social",                color: "#fbbf24" },
+  OTRO:                 { label: "Otro",                  color: "#94a3b8" },
+};
+
+// Mismos 4 estados que valida el CHECK de la tabla activities.
+export const ACTIVITY_STATUS_META = {
+  PLANIFICADA: { label: "Planificada",  color: "#60a5fa" },
+  EN_PROGRESO: { label: "En progreso",  color: "#fbbf24" },
+  COMPLETADA:  { label: "Completada",   color: "#34d399" },
+  CANCELADA:   { label: "Cancelada",    color: "#f87171" },
+};
+
 export function greetingForTime(date = new Date()) {
   const h = date.getHours();
   if (h < 12) return "Buenos días";

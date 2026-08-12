@@ -176,4 +176,15 @@ export const leadersService = {
   },
 };
 
+export const activitiesService = {
+  getAll: async (params) => {
+    const response = await api.get("/activities", { params });
+    return response.data;
+  },
+  getById: async (id) => {
+    const response = await api.get(`/activities/${id}`);
+    return response.data;
+  },
+};
+
 export default api;

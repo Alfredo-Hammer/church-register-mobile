@@ -10,18 +10,14 @@ import { announcementsService } from "../services/api";
 import { getLastSeenAnnouncementAt, hasUnseenAnnouncement } from "../utils/announcementsSeen";
 import { colors, gradient, ROLE_META, greetingForTime } from "../theme";
 
-// Módulos que se van a ir prendiendo con el tiempo — Conferencias es el
-// único real por ahora (ver conversación: es donde la app nativa gana
-// frente a la web, cámara directa sin el rodeo de HTTPS+LAN). El resto
-// queda visible pero marcado "Próximamente" para que la pantalla se sienta
-// como el inicio de una app completa, no un menú de una sola opción.
+// Eventos, Actividades y Miembros ya no están acá — tienen su propia
+// pestaña fija en la barra inferior (uso diario) y esta grilla se quedó
+// con lo de uso más esporádico.
 const MODULES = [
   { key: "conference", icon: "qr-code-outline", iconColor: "#60a5fa", title: "Conferencias", subtitle: "Escanear gafetes y ver asistencia", screen: "ConferenceList" },
-  { key: "attendance", icon: "checkmark-done-circle-outline", iconColor: "#34d399", title: "Asistencia", subtitle: "Tomar lista de un evento", screen: "EventList" },
   { key: "groups", icon: "people-circle-outline", iconColor: "#f472b6", title: "Grupos", subtitle: "Ver ministerios y líderes", screen: "Groups" },
   { key: "announcements", icon: "megaphone-outline", iconColor: "#38bdf8", title: "Avisos", subtitle: "Publicar y ver anuncios", screen: "Announcements" },
   { key: "visitors", icon: "person-add-outline", iconColor: "#fbbf24", title: "Visitantes", subtitle: "Buscar y ver seguimiento", screen: "Visitors" },
-  { key: "members", icon: "people-outline", iconColor: "#a78bfa", title: "Miembros", subtitle: "Buscar y ver perfiles", screen: "Members" },
   { key: "baptisms", icon: "water-outline", iconColor: "#22d3ee", title: "Bautismos", subtitle: "Ver historial de bautismos", screen: "BaptismList" },
   { key: "leaders", icon: "ribbon-outline", iconColor: "#fb923c", title: "Líderes", subtitle: "Cargos por grupo y área", screen: "Leaders" },
 ];
