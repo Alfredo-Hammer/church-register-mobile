@@ -165,4 +165,15 @@ export const baptismsService = {
   },
 };
 
+export const leadersService = {
+  getAll: async (params) => {
+    const response = await api.get("/leaders", { params });
+    return response.data;
+  },
+  getById: async (id) => {
+    const response = await api.get(`/leaders/${id}`);
+    return response.data;
+  },
+};
+
 export default api;
