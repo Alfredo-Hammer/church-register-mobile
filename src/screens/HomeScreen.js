@@ -8,12 +8,13 @@ import { useAuth } from "../context/AuthContext";
 import SideMenu from "../components/SideMenu";
 import NextUpCard from "../components/NextUpCard";
 import QuickAction from "../components/QuickAction";
+import LiveNowBanner from "../components/LiveNowBanner";
 import {
   announcementsService, membersService, visitorsService, groupsService,
   eventsService, prayerService, baptismsService, financesService, settingsService,
 } from "../services/api";
 import { getLastSeenAnnouncementAt, hasUnseenAnnouncement } from "../utils/announcementsSeen";
-import { pickNextItem, daysUntilBirthday } from "../utils/schedule";
+import { pickNextItem, pickLiveNow, daysUntilBirthday } from "../utils/schedule";
 import { colors, gradient, ROLE_META, greetingForTime } from "../theme";
 
 const FINANCE_ROLES = ["ADMIN", "PASTOR", "TESORERO"];
@@ -80,6 +81,7 @@ export default function HomeScreen({ navigation }) {
   const [quickStats, setQuickStats] = useState(null);
   const [church, setChurch] = useState(null);
   const [nextItem, setNextItem] = useState(null);
+  const [liveNow, setLiveNow] = useState(null);
   const [birthdays, setBirthdays] = useState([]);
   const [baptismStats, setBaptismStats] = useState(null);
   const [finSummary, setFinSummary] = useState(null);
@@ -127,10 +129,8 @@ export default function HomeScreen({ navigation }) {
             prayerService.getAll({ activeOnly: "true" }),
           ]);
           const now = new Date();
-          const upcoming = (ev.events || [])
-            .filter((e) => new Date(e.date) >= now)
-            .sort((a, b) => new Date(a.date) - new Date(b.date));
-          setNextItem(pickNextItem(upcoming, pd.prayer_days || []));
+          setNextItem(pickNextItem(ev.events || [], pd.prayer_days || [], now));
+          setLiveNow(pickLiveNow(ev.events || [], pd.prayer_days || [], now));
         } catch { /* silencioso */ }
       })();
 
@@ -218,6 +218,12 @@ export default function HomeScreen({ navigation }) {
       </LinearGradient>
 
       <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent}>
+        {liveNow && (
+          <View style={{ marginBottom: 18 }}>
+            <LiveNowBanner item={liveNow} />
+          </View>
+        )}
+
         {nextItem && (
           <View style={{ marginBottom: 18 }}>
             <NextUpCard item={nextItem} />

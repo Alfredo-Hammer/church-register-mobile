@@ -43,18 +43,69 @@ export function nextPrayerOccurrence(dayOfWeek, startTime, now = new Date()) {
   return result;
 }
 
-// De una lista de eventos (ordenada por fecha, el próximo primero) y días
-// de oración recurrentes, arma el candidato con la fecha/hora más cercana
-// a `now` — mismo criterio para el home de miembro y el de staff.
+// De una lista de eventos (en cualquier orden, puede incluir pasados o "en
+// vivo" — se filtra acá adentro) y días de oración recurrentes, arma el
+// candidato con la fecha/hora futura más cercana a `now`. Mismo criterio
+// para el home de miembro y el de staff, sin asumir ningún orden previo de
+// `events` (el endpoint público y el autenticado no ordenan igual, y
+// ninguno de los dos garantiza excluir eventos ya empezados).
 export function pickNextItem(events, prayerDays, now = new Date()) {
   const candidates = [];
-  if (events[0]) candidates.push({ ...events[0], _sortDate: new Date(events[0].date) });
+  const nextEvent = events
+    .filter((e) => new Date(e.date) >= now)
+    .sort((a, b) => new Date(a.date) - new Date(b.date))[0];
+  if (nextEvent) candidates.push({ ...nextEvent, _sortDate: new Date(nextEvent.date) });
   for (const pd of prayerDays) {
     candidates.push({ ...pd, kind: "prayer", _sortDate: nextPrayerOccurrence(pd.day_of_week, pd.start_time, now) });
   }
   if (candidates.length === 0) return null;
   candidates.sort((a, b) => a._sortDate - b._sortDate);
   return candidates[0];
+}
+
+// Ni `events` ni `prayer_days` guardan una duración explícita — se asume
+// una ventana razonable para un culto/reunión típico. Si más adelante se
+// agrega una hora de fin real, esto deja de hacer falta.
+const DEFAULT_EVENT_DURATION_MS = 2 * 60 * 60 * 1000; // 2 horas
+const DEFAULT_PRAYER_DURATION_MS = 90 * 60 * 1000; // 90 minutos
+
+function timeOnDate(baseDate, timeStr) {
+  const [h, m] = timeStr.split(":").map(Number);
+  return new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate(), h, m, 0, 0);
+}
+
+// Conferencias quedan afuera: su end_date es de calendario (día), no de
+// horario — no hay forma de saber si "ahora mismo" cae dentro de una
+// sesión sin consultar cada conference_session por separado.
+export function isEventLiveNow(event, now = new Date()) {
+  if (event.kind === "conference") return false;
+  const start = new Date(event.date);
+  const end = new Date(start.getTime() + DEFAULT_EVENT_DURATION_MS);
+  return now >= start && now <= end;
+}
+
+export function isPrayerLiveNow(prayerDay, now = new Date()) {
+  if (now.getDay() !== prayerDay.day_of_week) return false;
+  const start = timeOnDate(now, prayerDay.start_time);
+  const end = prayerDay.end_time
+    ? timeOnDate(now, prayerDay.end_time)
+    : new Date(start.getTime() + DEFAULT_PRAYER_DURATION_MS);
+  return now >= start && now <= end;
+}
+
+// Primer ítem "en vivo ahora mismo" entre eventos y días de oración — para
+// el banner "EN VIVO" de los dos homes. Si hay más de uno solapado (caso
+// raro), se prioriza el que empezó más recientemente.
+export function pickLiveNow(events, prayerDays, now = new Date()) {
+  const live = [
+    ...events.filter((e) => isEventLiveNow(e, now)).map((e) => ({ ...e, _startDate: new Date(e.date) })),
+    ...prayerDays.filter((pd) => isPrayerLiveNow(pd, now)).map((pd) => ({
+      ...pd, kind: "prayer", _startDate: timeOnDate(now, pd.start_time),
+    })),
+  ];
+  if (live.length === 0) return null;
+  live.sort((a, b) => b._startDate - a._startDate);
+  return live[0];
 }
 
 // Próximo cumpleaños de un miembro (mismo día/mes, año que sea) — para

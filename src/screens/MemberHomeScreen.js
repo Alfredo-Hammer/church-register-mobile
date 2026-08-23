@@ -11,9 +11,10 @@ import { useAuth } from "../context/AuthContext";
 import { publicService } from "../services/api";
 import { getLastSeenAnnouncementAt, markAnnouncementsSeen } from "../utils/announcementsSeen";
 import { colors, gradient, EVENT_TYPE_META, DAY_NAMES } from "../theme";
-import { formatEventDate, formatDateRange, formatTime, pickNextItem } from "../utils/schedule";
+import { formatEventDate, formatDateRange, formatTime, pickNextItem, pickLiveNow, isEventLiveNow } from "../utils/schedule";
 import NextUpCard from "../components/NextUpCard";
 import QuickAction from "../components/QuickAction";
+import LiveNowBanner from "../components/LiveNowBanner";
 
 function openPhone(phone) {
   Linking.openURL(`tel:${phone.replace(/[^\d+]/g, "")}`);
@@ -83,13 +84,21 @@ function PrayerDayRow({ item }) {
 function EventCard({ item }) {
   const meta = EVENT_TYPE_META[item.event_type] || { label: item.event_type, color: colors.primary };
   const isConference = item.kind === "conference";
+  const isLive = isEventLiveNow(item);
   return (
-    <View style={[styles.eventCard, { borderLeftColor: meta.color }]}>
+    <View style={[styles.eventCard, { borderLeftColor: isLive ? colors.danger : meta.color }]}>
       <View style={styles.eventHeaderRow}>
         <Text style={styles.eventTitle} numberOfLines={2}>{item.title}</Text>
-        <View style={[styles.eventBadge, { backgroundColor: `${meta.color}22` }]}>
-          <Text style={[styles.eventBadgeText, { color: meta.color }]}>{meta.label}</Text>
-        </View>
+        {isLive ? (
+          <View style={styles.liveTag}>
+            <View style={styles.liveTagDot} />
+            <Text style={styles.liveTagText}>EN VIVO</Text>
+          </View>
+        ) : (
+          <View style={[styles.eventBadge, { backgroundColor: `${meta.color}22` }]}>
+            <Text style={[styles.eventBadgeText, { color: meta.color }]}>{meta.label}</Text>
+          </View>
+        )}
       </View>
       <View style={styles.metaLineRow}>
         <Ionicons name="calendar-outline" size={13} color={colors.muted} />
@@ -157,6 +166,7 @@ export default function MemberHomeScreen({ navigation }) {
   );
 
   const nextItem = useMemo(() => pickNextItem(events, prayerDays), [events, prayerDays]);
+  const liveNow = useMemo(() => pickLiveNow(events, prayerDays), [events, prayerDays]);
 
   const initial = (joinedChurch?.name?.trim()?.charAt(0) || "?").toUpperCase();
 
@@ -220,8 +230,14 @@ export default function MemberHomeScreen({ navigation }) {
               </View>
             )}
 
-            {nextItem && (
+            {liveNow && (
               <View style={{ marginTop: 18 }}>
+                <LiveNowBanner item={liveNow} />
+              </View>
+            )}
+
+            {nextItem && (
+              <View style={{ marginTop: liveNow ? 12 : 18 }}>
                 <NextUpCard item={nextItem} />
               </View>
             )}
@@ -324,6 +340,12 @@ const styles = StyleSheet.create({
   eventTitle: { flex: 1, fontSize: 15, fontWeight: "700", color: colors.text },
   eventBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 },
   eventBadgeText: { fontSize: 10.5, fontWeight: "700" },
+  liveTag: {
+    flexDirection: "row", alignItems: "center", gap: 4,
+    backgroundColor: colors.danger, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 3,
+  },
+  liveTagDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: "#fff" },
+  liveTagText: { fontSize: 9.5, fontWeight: "800", color: "#fff", letterSpacing: 0.4 },
   eventDate: { fontSize: 12.5, color: colors.muted, textTransform: "capitalize" },
   eventLocation: { fontSize: 12, color: colors.muted },
   eventDescription: { fontSize: 12.5, color: colors.muted, marginTop: 8 },
