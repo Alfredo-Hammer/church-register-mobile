@@ -152,6 +152,10 @@ export const membersService = {
     const response = await api.get("/members/stats");
     return response.data;
   },
+  getBirthdays: async (params) => {
+    const response = await api.get("/members/birthdays", { params });
+    return response.data;
+  },
 };
 
 export const visitorsService = {
@@ -219,6 +223,20 @@ export const activitiesService = {
   },
   getStats: async () => {
     const response = await api.get("/activities/stats");
+    return response.data;
+  },
+};
+
+export const prayerService = {
+  getAll: async (params) => {
+    const response = await api.get("/prayer", { params });
+    return response.data;
+  },
+};
+
+export const settingsService = {
+  getChurch: async () => {
+    const response = await api.get("/settings/church");
     return response.data;
   },
 };

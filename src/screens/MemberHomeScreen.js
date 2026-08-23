@@ -11,46 +11,9 @@ import { useAuth } from "../context/AuthContext";
 import { publicService } from "../services/api";
 import { getLastSeenAnnouncementAt, markAnnouncementsSeen } from "../utils/announcementsSeen";
 import { colors, gradient, EVENT_TYPE_META, DAY_NAMES } from "../theme";
-
-function formatEventDate(iso) {
-  const d = new Date(iso);
-  const date = d.toLocaleDateString("es", { weekday: "long", day: "numeric", month: "long" });
-  const time = d.toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit" });
-  return `${date} · ${time}`;
-}
-
-// Una conferencia dura varios días — mostrar el rango completo en vez de
-// una sola fecha/hora, que solo tendría sentido para un evento puntual.
-function formatDateRange(startIso, endIso) {
-  const start = new Date(startIso);
-  const end = new Date(endIso);
-  const startLabel = start.toLocaleDateString("es", { day: "numeric", month: "long" });
-  const endLabel = end.toLocaleDateString("es", { day: "numeric", month: "long" });
-  return startLabel === endLabel ? startLabel : `${startLabel} – ${endLabel}`;
-}
-
-// "HH:MM:SS" tal como lo devuelve Postgres para una columna TIME — se arma
-// una fecha cualquiera solo para reusar el formateador de hora del sistema.
-function formatTime(timeStr) {
-  if (!timeStr) return "";
-  const [h, m] = timeStr.split(":");
-  const d = new Date(2000, 0, 1, Number(h), Number(m));
-  return d.toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit" });
-}
-
-// Próxima fecha/hora concreta en la que cae un día de oración recurrente
-// (hoy mismo si todavía no pasó su hora, si no la semana que viene) — para
-// poder compararlo de igual a igual contra eventos con fecha fija y saber
-// cuál mostrar como "Próximo".
-function nextPrayerOccurrence(dayOfWeek, startTime, now = new Date()) {
-  const [h, m] = startTime.split(":").map(Number);
-  const result = new Date(now);
-  const diff = (dayOfWeek - now.getDay() + 7) % 7;
-  result.setDate(now.getDate() + diff);
-  result.setHours(h, m, 0, 0);
-  if (result < now) result.setDate(result.getDate() + 7);
-  return result;
-}
+import { formatEventDate, formatDateRange, formatTime, pickNextItem } from "../utils/schedule";
+import NextUpCard from "../components/NextUpCard";
+import QuickAction from "../components/QuickAction";
 
 function openPhone(phone) {
   Linking.openURL(`tel:${phone.replace(/[^\d+]/g, "")}`);
@@ -65,15 +28,6 @@ function openMaps(address) {
 function openWebsite(website) {
   const url = /^https?:\/\//i.test(website) ? website : `https://${website}`;
   Linking.openURL(url);
-}
-
-function QuickAction({ icon, label, onPress }) {
-  return (
-    <TouchableOpacity style={styles.quickAction} onPress={onPress}>
-      <Ionicons name={icon} size={16} color="#fff" />
-      <Text style={styles.quickActionText}>{label}</Text>
-    </TouchableOpacity>
-  );
 }
 
 function formatAnnouncementDate(iso) {
@@ -98,42 +52,6 @@ function AnnouncementCard({ item, isNew }) {
         <Text style={styles.announcementBody} numberOfLines={3}>{item.body}</Text>
         <Text style={styles.announcementDate}>{formatAnnouncementDate(item.created_at)}</Text>
       </View>
-    </View>
-  );
-}
-
-function NextUpCard({ item }) {
-  if (!item) return null;
-  const meta = EVENT_TYPE_META[item.event_type] || { label: "Oración", color: colors.primary };
-  const isPrayer = item.kind === "prayer";
-  return (
-    <View style={styles.nextCard}>
-      <View style={styles.nextCardHeader}>
-        <View style={styles.nextBadgeRow}>
-          <Ionicons name="sparkles" size={13} color={colors.primary} />
-          <Text style={styles.nextLabel}>Próximo</Text>
-        </View>
-        <View style={[styles.eventBadge, { backgroundColor: `${meta.color}22` }]}>
-          <Text style={[styles.eventBadgeText, { color: meta.color }]}>{meta.label}</Text>
-        </View>
-      </View>
-      <Text style={styles.nextTitle} numberOfLines={2}>{item.title}</Text>
-      <View style={styles.metaLineRow}>
-        <Ionicons name="time-outline" size={13} color={colors.muted} />
-        <Text style={styles.nextMeta}>
-          {isPrayer
-            ? `${DAY_NAMES[item.day_of_week]} · ${formatTime(item.start_time)}`
-            : item.kind === "conference"
-              ? formatDateRange(item.date, item.end_date)
-              : formatEventDate(item.date)}
-        </Text>
-      </View>
-      {item.location ? (
-        <View style={styles.metaLineRow}>
-          <Ionicons name="location-outline" size={13} color={colors.muted} />
-          <Text style={styles.nextMeta}>{item.location}</Text>
-        </View>
-      ) : null}
     </View>
   );
 }
@@ -238,16 +156,7 @@ export default function MemberHomeScreen({ navigation }) {
     }, [loadDashboard])
   );
 
-  const nextItem = useMemo(() => {
-    const candidates = [];
-    if (events[0]) candidates.push({ ...events[0], _sortDate: new Date(events[0].date) });
-    for (const pd of prayerDays) {
-      candidates.push({ ...pd, kind: "prayer", _sortDate: nextPrayerOccurrence(pd.day_of_week, pd.start_time) });
-    }
-    if (candidates.length === 0) return null;
-    candidates.sort((a, b) => a._sortDate - b._sortDate);
-    return candidates[0];
-  }, [events, prayerDays]);
+  const nextItem = useMemo(() => pickNextItem(events, prayerDays), [events, prayerDays]);
 
   const initial = (joinedChurch?.name?.trim()?.charAt(0) || "?").toUpperCase();
 
@@ -311,7 +220,11 @@ export default function MemberHomeScreen({ navigation }) {
               </View>
             )}
 
-            <NextUpCard item={nextItem} />
+            {nextItem && (
+              <View style={{ marginTop: 18 }}>
+                <NextUpCard item={nextItem} />
+              </View>
+            )}
 
             {prayerDays.length > 0 && (
               <View style={styles.prayerSection}>
@@ -363,12 +276,6 @@ const styles = StyleSheet.create({
   churchName: { color: "#fff", fontSize: 22, fontWeight: "800", marginTop: 16 },
   pastorName: { color: "rgba(255,255,255,0.8)", fontSize: 13, marginTop: 3 },
   quickActions: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 16 },
-  quickAction: {
-    flexDirection: "row", alignItems: "center", gap: 6,
-    backgroundColor: "rgba(255,255,255,0.14)",
-    borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7,
-  },
-  quickActionText: { color: "#fff", fontSize: 12.5, fontWeight: "600" },
   body: { flex: 1 },
   listContent: { padding: 20, paddingBottom: 40, flexGrow: 1 },
   sectionLabel: {
@@ -395,16 +302,6 @@ const styles = StyleSheet.create({
   newPillText: { color: "#fff", fontSize: 9.5, fontWeight: "800", textTransform: "uppercase" },
   announcementBody: { fontSize: 12.5, color: colors.muted, marginTop: 4, lineHeight: 18 },
   announcementDate: { fontSize: 11, color: colors.muted, marginTop: 6, textTransform: "capitalize" },
-  nextCard: {
-    backgroundColor: `${colors.primary}17`,
-    borderWidth: 1, borderColor: `${colors.primary}55`,
-    borderRadius: 16, padding: 16, marginTop: 18,
-  },
-  nextCardHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  nextBadgeRow: { flexDirection: "row", alignItems: "center", gap: 5 },
-  nextLabel: { fontSize: 11, fontWeight: "800", color: colors.primary, textTransform: "uppercase", letterSpacing: 0.5 },
-  nextTitle: { fontSize: 17, fontWeight: "800", color: colors.text, marginTop: 10 },
-  nextMeta: { fontSize: 12.5, color: colors.muted, textTransform: "capitalize" },
   prayerSection: { width: "100%" },
   prayerRow: {
     flexDirection: "row", alignItems: "center", gap: 12,
