@@ -6,8 +6,11 @@ import { authEvents } from "./authEvents";
 // nativa — a diferencia de la web, esta URL puede apuntar directo a la IP
 // de la red local del backend sin proxy ni configuración extra.
 //
-// Cambiar aquí cuando el backend viva en otro lugar (producción, otra red).
-export const API_URL = "http://192.168.4.22:3000/api";
+// EXPO_PUBLIC_API_URL viene de .env (producción, committeado) o de
+// .env.local (gitignored, para pisar con la IP de LAN al desarrollar en
+// el celular por WiFi — ver .env.example). El literal de acá abajo es
+// solo el último respaldo si ninguno de los dos .env está presente.
+export const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://192.168.4.22:3000/api";
 
 const api = axios.create({
   baseURL: API_URL,

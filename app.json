@@ -7,7 +7,11 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.congrega.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -15,7 +19,11 @@
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -27,7 +35,13 @@
         {
           "cameraPermission": "Congrega usa la cámara para escanear el código QR del gafete y marcar asistencia."
         }
-      ]
-    ]
+      ],
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "1291ffa9-16b2-4305-9982-d3c853bbe9f5"
+      }
+    }
   }
 }
