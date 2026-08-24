@@ -18,7 +18,7 @@ const ASPECT_RATIO = 4 / 3;
 // Pantalla completa con la transmisión/video de Facebook embebido. Dos
 // cosas que la página del plugin de Facebook no resuelve sola (verificado
 // navegando directo a video.php): el video no se centra ni ocupa el
-// contenedor — hay que calcular nosotros un recuadro 16:9 que entre en la
+// contenedor — hay que calcular nosotros un recuadro que entre en la
 // pantalla (en cualquier orientación) y centrarlo a mano.
 export default function LiveStreamScreen({ route, navigation }) {
   const { streamUrl } = route.params;
@@ -42,12 +42,21 @@ export default function LiveStreamScreen({ route, navigation }) {
     videoWidth = videoHeight * ASPECT_RATIO;
   }
 
+  // La URL que carga el WebView se calcula UNA sola vez, con el tamaño de
+  // la orientación inicial — nunca cambia después. Antes se recalculaba
+  // (con una `key` distinta) en cada cambio de tamaño, así que rotar la
+  // pantalla forzaba al WebView a recargar la página entera: video
+  // reiniciado, mute y volumen perdidos. La caja de afuera sí se sigue
+  // recalculando en cada render para centrar/letterbox correctamente —
+  // el WebView, al ser una página con su propio layout, se reacomoda
+  // solo al tamaño nuevo sin necesidad de recargar nada.
+  const [embedUrl] = useState(() => buildFacebookEmbedUrl(streamUrl, videoWidth, videoHeight));
+
   return (
     <View style={styles.container}>
       <View style={[styles.videoBox, { width: videoWidth, height: videoHeight }]}>
         <WebView
-          key={`${Math.round(videoWidth)}x${Math.round(videoHeight)}`}
-          source={{ uri: buildFacebookEmbedUrl(streamUrl, videoWidth, videoHeight) }}
+          source={{ uri: embedUrl }}
           style={styles.webview}
           allowsInlineMediaPlayback
           mediaPlaybackRequiresUserAction={false}
