@@ -9,6 +9,7 @@ import SideMenu from "../components/SideMenu";
 import NextUpCard from "../components/NextUpCard";
 import QuickAction from "../components/QuickAction";
 import LiveNowBanner from "../components/LiveNowBanner";
+import LiveStreamBanner from "../components/LiveStreamBanner";
 import PhotoCarousel from "../components/PhotoCarousel";
 import {
   announcementsService, membersService, visitorsService, groupsService,
@@ -227,6 +228,12 @@ export default function HomeScreen({ navigation }) {
       </LinearGradient>
 
       <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent}>
+        {church?.liveStreamUrl && (
+          <View style={{ marginBottom: 18 }}>
+            <LiveStreamBanner liveStreamUrl={church.liveStreamUrl} />
+          </View>
+        )}
+
         {photos.length > 0 && (
           <View style={{ marginBottom: 18 }}>
             <PhotoCarousel photos={photos} churchId={user?.churchId} />

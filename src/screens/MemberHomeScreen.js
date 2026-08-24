@@ -16,6 +16,7 @@ import NextUpCard from "../components/NextUpCard";
 import QuickAction from "../components/QuickAction";
 import LiveNowBanner from "../components/LiveNowBanner";
 import PhotoCarousel from "../components/PhotoCarousel";
+import LiveStreamBanner from "../components/LiveStreamBanner";
 
 function openPhone(phone) {
   Linking.openURL(`tel:${phone.replace(/[^\d+]/g, "")}`);
@@ -131,6 +132,7 @@ export default function MemberHomeScreen({ navigation }) {
   const [prayerDays, setPrayerDays] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [photos, setPhotos] = useState([]);
+  const [liveStreamUrl, setLiveStreamUrl] = useState(null);
   const [lastSeenAt, setLastSeenAt] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -141,16 +143,18 @@ export default function MemberHomeScreen({ navigation }) {
     isRefresh ? setRefreshing(true) : setLoading(true);
     setError("");
     try {
-      const [eventsData, prayerData, announcementsData, photosData] = await Promise.all([
+      const [eventsData, prayerData, announcementsData, photosData, liveStreamData] = await Promise.all([
         publicService.getUpcomingEvents(joinedChurch.id),
         publicService.getPrayerDays(joinedChurch.id),
         publicService.getAnnouncements(joinedChurch.id),
         publicService.getPhotos(joinedChurch.id),
+        publicService.getLiveStream(joinedChurch.id),
       ]);
       setEvents(eventsData.events || []);
       setPrayerDays(prayerData.prayerDays || []);
       setAnnouncements(announcementsData.announcements || []);
       setPhotos(photosData.photos || []);
+      setLiveStreamUrl(liveStreamData.liveStreamUrl || null);
       const previousSeenAt = await getLastSeenAnnouncementAt();
       setLastSeenAt(previousSeenAt);
       if (announcementsData.announcements?.[0]) {
@@ -222,6 +226,12 @@ export default function MemberHomeScreen({ navigation }) {
         }
         ListHeaderComponent={
           <View>
+            {liveStreamUrl && (
+              <View style={{ marginBottom: 18 }}>
+                <LiveStreamBanner liveStreamUrl={liveStreamUrl} />
+              </View>
+            )}
+
             {photos.length > 0 && (
               <View style={{ marginBottom: 18 }}>
                 <PhotoCarousel photos={photos} churchId={joinedChurch?.id} />
