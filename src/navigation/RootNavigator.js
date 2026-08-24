@@ -35,6 +35,7 @@ import PhotoFeedScreen from "../screens/PhotoFeedScreen";
 import LiveStreamScreen from "../screens/LiveStreamScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import MemberMessagesScreen from "../screens/MemberMessagesScreen";
+import ConferenceProgramScreen from "../screens/ConferenceProgramScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -46,6 +47,7 @@ const MiembrosStack = createNativeStackNavigator();
 const MemberInicioStack = createNativeStackNavigator();
 const MemberMoreStack = createNativeStackNavigator();
 const MemberMessagesStack = createNativeStackNavigator();
+const MemberCalendarStack = createNativeStackNavigator();
 
 const navTheme = {
   ...DarkTheme,
@@ -145,6 +147,18 @@ function MemberMessagesStackScreen() {
   );
 }
 
+// "ConferenceProgram" (solo lectura, sin check-in) vive en el stack de
+// Calendario para poder "volver" a la lista al cerrarla — mismo patrón que
+// Mensajes/Inicio con sus propias pantallas empujadas.
+function MemberCalendarStackScreen() {
+  return (
+    <MemberCalendarStack.Navigator>
+      <MemberCalendarStack.Screen name="Calendar" component={MemberCalendarScreen} options={{ title: "Calendario" }} />
+      <MemberCalendarStack.Screen name="ConferenceProgram" component={ConferenceProgramScreen} options={{ title: "Programa" }} />
+    </MemberCalendarStack.Navigator>
+  );
+}
+
 const TAB_ICONS = {
   InicioTab: "home-outline",
   EventosTab: "calendar-outline",
@@ -178,7 +192,7 @@ function MemberTabs() {
       })}
     >
       <MemberTab.Screen name="MemberInicioTab" component={MemberInicioStackScreen} options={{ title: "Inicio" }} />
-      <MemberTab.Screen name="MemberCalendarTab" component={MemberCalendarScreen} options={{ title: "Calendario", headerShown: true }} />
+      <MemberTab.Screen name="MemberCalendarTab" component={MemberCalendarStackScreen} options={{ title: "Calendario" }} />
       <MemberTab.Screen name="MemberMessagesTab" component={MemberMessagesStackScreen} options={{ title: "Mensajes" }} />
       <MemberTab.Screen name="MemberGiveTab" component={MemberGiveScreen} options={{ title: "Dar", headerShown: true }} />
       <MemberTab.Screen name="MemberMoreTab" component={MemberMoreStackScreen} options={{ title: "Más" }} />

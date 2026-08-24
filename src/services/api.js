@@ -77,6 +77,15 @@ export const publicService = {
     const response = await api.get(`/public/church/${churchId}/sermons`);
     return response.data;
   },
+  // Mismo endpoint que usa la pantalla del salón (público, sin JWT) — un
+  // invitado sin cuenta puede ver el programa de una conferencia con solo
+  // el public_token, sin pasar por el flujo de staff (check-in, gafetes).
+  getConferenceProgram: async (token, date) => {
+    const response = await api.get(`/public/conference/${token}/today`, {
+      params: date ? {date} : {},
+    });
+    return response.data;
+  },
   getPhotos: async (churchId, deviceId) => {
     const response = await api.get(`/public/church/${churchId}/photos`, {
       params: deviceId ? { deviceId } : {},

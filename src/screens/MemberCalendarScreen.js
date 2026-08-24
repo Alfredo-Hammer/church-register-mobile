@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { View, Text, ScrollView, ActivityIndicator, RefreshControl, StyleSheet } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, StyleSheet } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../context/AuthContext";
@@ -25,13 +25,17 @@ function groupEventsByMonth(events) {
   return groups;
 }
 
-function EventRow({ item }) {
+function EventRow({ item, onPress }) {
   const d = new Date(item.date);
   const meta = EVENT_TYPE_META[item.event_type] || { label: item.event_type, color: colors.primary };
   const isConference = item.kind === "conference";
   const isLive = isEventLiveNow(item);
+  const Wrapper = isConference && item.public_token ? TouchableOpacity : View;
   return (
-    <View style={styles.eventRow}>
+    <Wrapper
+      style={styles.eventRow}
+      {...(isConference && item.public_token ? { activeOpacity: 0.7, onPress } : {})}
+    >
       <View style={[styles.dateBadge, isLive && { backgroundColor: colors.danger }]}>
         <Text style={styles.dateBadgeDow}>{DOW_SHORT[d.getDay()]}</Text>
         <Text style={styles.dateBadgeNum}>{d.getDate()}</Text>
@@ -53,7 +57,7 @@ function EventRow({ item }) {
           <Text style={[styles.typeBadgeText, { color: meta.color }]}>{meta.label}</Text>
         </View>
       )}
-    </View>
+    </Wrapper>
   );
 }
 
@@ -79,7 +83,7 @@ function PrayerDayRow({ item }) {
 // original era una sola lista larga (oración + eventos mezclados) en su
 // propia pantalla, agrupada por mes como en apps de iglesia de referencia
 // (Church Center). Reusa los mismos endpoints públicos que ya usaba Inicio.
-export default function MemberCalendarScreen() {
+export default function MemberCalendarScreen({ navigation }) {
   const { joinedChurch } = useAuth();
   const [events, setEvents] = useState([]);
   const [prayerDays, setPrayerDays] = useState([]);
@@ -135,7 +139,13 @@ export default function MemberCalendarScreen() {
         monthGroups.map(({ year, month, items }) => (
           <View key={`${year}-${month}`} style={styles.section}>
             <Text style={styles.monthLabel}>{MONTH_NAMES[month]} de {year}</Text>
-            {items.map((e) => <EventRow key={e.id} item={e} />)}
+            {items.map((e) => (
+              <EventRow
+                key={e.id}
+                item={e}
+                onPress={() => navigation.navigate("ConferenceProgram", { token: e.public_token, title: e.title })}
+              />
+            ))}
           </View>
         ))
       )}
