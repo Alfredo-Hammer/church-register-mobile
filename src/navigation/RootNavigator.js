@@ -8,6 +8,8 @@ import { colors } from "../theme";
 import WelcomeScreen from "../screens/WelcomeScreen";
 import JoinChurchScreen from "../screens/JoinChurchScreen";
 import MemberHomeScreen from "../screens/MemberHomeScreen";
+import MemberCalendarScreen from "../screens/MemberCalendarScreen";
+import MemberMoreScreen from "../screens/MemberMoreScreen";
 import GroupsScreen from "../screens/GroupsScreen";
 import AnnouncementsScreen from "../screens/AnnouncementsScreen";
 import MembersScreen from "../screens/MembersScreen";
@@ -34,10 +36,13 @@ import ProfileScreen from "../screens/ProfileScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+const MemberTab = createBottomTabNavigator();
 const InicioStack = createNativeStackNavigator();
 const EventosStack = createNativeStackNavigator();
 const ActividadesStack = createNativeStackNavigator();
 const MiembrosStack = createNativeStackNavigator();
+const MemberInicioStack = createNativeStackNavigator();
+const MemberMoreStack = createNativeStackNavigator();
 
 const navTheme = {
   ...DarkTheme,
@@ -104,6 +109,28 @@ function MiembrosStackScreen() {
   );
 }
 
+// Inicio del miembro tiene sus propias pantallas modales (PhotoFeed,
+// LiveStream) que se abren desde el carrusel/banner — necesitan vivir en
+// el stack de esta pestaña para poder "volver" a Inicio al cerrarlas.
+function MemberInicioStackScreen() {
+  return (
+    <MemberInicioStack.Navigator>
+      <MemberInicioStack.Screen name="MemberHome" component={MemberHomeScreen} options={{ headerShown: false }} />
+      <MemberInicioStack.Screen name="PhotoFeed" component={PhotoFeedScreen} options={{ headerShown: false, presentation: "fullScreenModal" }} />
+      <MemberInicioStack.Screen name="LiveStream" component={LiveStreamScreen} options={{ headerShown: false, presentation: "fullScreenModal" }} />
+    </MemberInicioStack.Navigator>
+  );
+}
+
+function MemberMoreStackScreen() {
+  return (
+    <MemberMoreStack.Navigator>
+      <MemberMoreStack.Screen name="More" component={MemberMoreScreen} options={{ title: "Más" }} />
+      <MemberMoreStack.Screen name="Groups" component={GroupsScreen} options={{ title: "Grupos y ministerios" }} />
+    </MemberMoreStack.Navigator>
+  );
+}
+
 const TAB_ICONS = {
   InicioTab: "home-outline",
   EventosTab: "calendar-outline",
@@ -111,6 +138,37 @@ const TAB_ICONS = {
   MiembrosTab: "people-outline",
   ResumenTab: "stats-chart-outline",
 };
+
+const MEMBER_TAB_ICONS = {
+  MemberInicioTab: "home-outline",
+  MemberCalendarTab: "calendar-outline",
+  MemberMoreTab: "ellipsis-horizontal-outline",
+};
+
+// Similar a como se ven las apps de iglesia de referencia (Church Center
+// y similares): pestañas fijas abajo en vez de una sola pantalla con
+// scroll infinito. "Mensajes" (prédicas) y "Dar" quedan para un próximo
+// paso — necesitan datos nuevos (tabla de prédicas, links de dar por
+// iglesia) que todavía no existen.
+function MemberTabs() {
+  return (
+    <MemberTab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.muted,
+        tabBarStyle: { backgroundColor: colors.card, borderTopColor: colors.border },
+        tabBarIcon: ({ color, size }) => (
+          <Ionicons name={MEMBER_TAB_ICONS[route.name]} size={size} color={color} />
+        ),
+      })}
+    >
+      <MemberTab.Screen name="MemberInicioTab" component={MemberInicioStackScreen} options={{ title: "Inicio" }} />
+      <MemberTab.Screen name="MemberCalendarTab" component={MemberCalendarScreen} options={{ title: "Calendario", headerShown: true }} />
+      <MemberTab.Screen name="MemberMoreTab" component={MemberMoreStackScreen} options={{ title: "Más" }} />
+    </MemberTab.Navigator>
+  );
+}
 
 function StaffTabs() {
   return (
@@ -151,12 +209,7 @@ export default function RootNavigator() {
         {user ? (
           <Stack.Screen name="StaffTabs" component={StaffTabs} options={{ headerShown: false }} />
         ) : joinedChurch ? (
-          <>
-            <Stack.Screen name="MemberHome" component={MemberHomeScreen} options={{ headerShown: false }} />
-            <Stack.Screen name="Groups" component={GroupsScreen} options={{ title: "Grupos y ministerios" }} />
-            <Stack.Screen name="PhotoFeed" component={PhotoFeedScreen} options={{ headerShown: false, presentation: "fullScreenModal" }} />
-            <Stack.Screen name="LiveStream" component={LiveStreamScreen} options={{ headerShown: false, presentation: "fullScreenModal" }} />
-          </>
+          <Stack.Screen name="MemberTabs" component={MemberTabs} options={{ headerShown: false }} />
         ) : (
           <>
             <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
