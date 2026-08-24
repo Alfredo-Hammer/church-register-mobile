@@ -10,6 +10,7 @@ import JoinChurchScreen from "../screens/JoinChurchScreen";
 import MemberHomeScreen from "../screens/MemberHomeScreen";
 import MemberCalendarScreen from "../screens/MemberCalendarScreen";
 import MemberMoreScreen from "../screens/MemberMoreScreen";
+import MemberGiveScreen from "../screens/MemberGiveScreen";
 import GroupsScreen from "../screens/GroupsScreen";
 import AnnouncementsScreen from "../screens/AnnouncementsScreen";
 import MembersScreen from "../screens/MembersScreen";
@@ -142,14 +143,14 @@ const TAB_ICONS = {
 const MEMBER_TAB_ICONS = {
   MemberInicioTab: "home-outline",
   MemberCalendarTab: "calendar-outline",
+  MemberGiveTab: "heart-outline",
   MemberMoreTab: "ellipsis-horizontal-outline",
 };
 
 // Similar a como se ven las apps de iglesia de referencia (Church Center
 // y similares): pestañas fijas abajo en vez de una sola pantalla con
-// scroll infinito. "Mensajes" (prédicas) y "Dar" quedan para un próximo
-// paso — necesitan datos nuevos (tabla de prédicas, links de dar por
-// iglesia) que todavía no existen.
+// scroll infinito. "Mensajes" (prédicas) queda para un próximo paso —
+// necesita una tabla nueva que todavía no existe.
 function MemberTabs() {
   return (
     <MemberTab.Navigator
@@ -165,6 +166,7 @@ function MemberTabs() {
     >
       <MemberTab.Screen name="MemberInicioTab" component={MemberInicioStackScreen} options={{ title: "Inicio" }} />
       <MemberTab.Screen name="MemberCalendarTab" component={MemberCalendarScreen} options={{ title: "Calendario", headerShown: true }} />
+      <MemberTab.Screen name="MemberGiveTab" component={MemberGiveScreen} options={{ title: "Dar", headerShown: true }} />
       <MemberTab.Screen name="MemberMoreTab" component={MemberMoreStackScreen} options={{ title: "Más" }} />
     </MemberTab.Navigator>
   );

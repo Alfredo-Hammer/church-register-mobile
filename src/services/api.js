@@ -69,6 +69,10 @@ export const publicService = {
     const response = await api.get(`/public/church/${churchId}/live-stream`);
     return response.data;
   },
+  getGivingLinks: async (churchId) => {
+    const response = await api.get(`/public/church/${churchId}/giving-links`);
+    return response.data;
+  },
   getPhotos: async (churchId, deviceId) => {
     const response = await api.get(`/public/church/${churchId}/photos`, {
       params: deviceId ? { deviceId } : {},
