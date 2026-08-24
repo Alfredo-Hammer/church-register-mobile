@@ -9,6 +9,7 @@ import SideMenu from "../components/SideMenu";
 import NextUpCard from "../components/NextUpCard";
 import QuickAction from "../components/QuickAction";
 import LiveNowBanner from "../components/LiveNowBanner";
+import PhotoCarousel from "../components/PhotoCarousel";
 import {
   announcementsService, membersService, visitorsService, groupsService,
   eventsService, prayerService, baptismsService, financesService, settingsService,
@@ -80,6 +81,7 @@ export default function HomeScreen({ navigation }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [quickStats, setQuickStats] = useState(null);
   const [church, setChurch] = useState(null);
+  const [photos, setPhotos] = useState([]);
   const [nextItem, setNextItem] = useState(null);
   const [liveNow, setLiveNow] = useState(null);
   const [birthdays, setBirthdays] = useState([]);
@@ -119,6 +121,13 @@ export default function HomeScreen({ navigation }) {
         try {
           const c = await settingsService.getChurch();
           setChurch(c);
+        } catch { /* silencioso */ }
+      })();
+
+      (async () => {
+        try {
+          const p = await settingsService.getChurchPhotos();
+          setPhotos(p.photos || []);
         } catch { /* silencioso */ }
       })();
 
@@ -218,6 +227,12 @@ export default function HomeScreen({ navigation }) {
       </LinearGradient>
 
       <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent}>
+        {photos.length > 0 && (
+          <View style={{ marginBottom: 18 }}>
+            <PhotoCarousel photos={photos} />
+          </View>
+        )}
+
         {liveNow && (
           <View style={{ marginBottom: 18 }}>
             <LiveNowBanner item={liveNow} />

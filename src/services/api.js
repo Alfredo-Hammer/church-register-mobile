@@ -65,6 +65,10 @@ export const publicService = {
     const response = await api.get(`/public/church/${churchId}/announcements`);
     return response.data;
   },
+  getPhotos: async (churchId) => {
+    const response = await api.get(`/public/church/${churchId}/photos`);
+    return response.data;
+  },
 };
 
 export const announcementsService = {
@@ -237,6 +241,10 @@ export const prayerService = {
 export const settingsService = {
   getChurch: async () => {
     const response = await api.get("/settings/church");
+    return response.data;
+  },
+  getChurchPhotos: async () => {
+    const response = await api.get("/settings/church/photos");
     return response.data;
   },
 };
