@@ -229,7 +229,7 @@ export default function HomeScreen({ navigation }) {
       <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent}>
         {photos.length > 0 && (
           <View style={{ marginBottom: 18 }}>
-            <PhotoCarousel photos={photos} />
+            <PhotoCarousel photos={photos} churchId={user?.churchId} />
           </View>
         )}
 

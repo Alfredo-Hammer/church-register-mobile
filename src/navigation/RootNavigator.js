@@ -28,6 +28,7 @@ import SessionPickerScreen from "../screens/SessionPickerScreen";
 import ScannerScreen from "../screens/ScannerScreen";
 import EventListScreen from "../screens/EventListScreen";
 import AttendanceScreen from "../screens/AttendanceScreen";
+import PhotoFeedScreen from "../screens/PhotoFeedScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -67,6 +68,7 @@ function InicioStackScreen() {
       <InicioStack.Screen name="BaptismDetail" component={BaptismDetailScreen} options={{ title: "Bautismo" }} />
       <InicioStack.Screen name="Leaders" component={LeadersScreen} options={{ title: "Líderes" }} />
       <InicioStack.Screen name="LeaderDetail" component={LeaderDetailScreen} options={{ title: "Líder" }} />
+      <InicioStack.Screen name="PhotoFeed" component={PhotoFeedScreen} options={{ headerShown: false, presentation: "fullScreenModal" }} />
     </InicioStack.Navigator>
   );
 }
@@ -148,6 +150,7 @@ export default function RootNavigator() {
           <>
             <Stack.Screen name="MemberHome" component={MemberHomeScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Groups" component={GroupsScreen} options={{ title: "Grupos y ministerios" }} />
+            <Stack.Screen name="PhotoFeed" component={PhotoFeedScreen} options={{ headerShown: false, presentation: "fullScreenModal" }} />
           </>
         ) : (
           <>

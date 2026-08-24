@@ -224,7 +224,7 @@ export default function MemberHomeScreen({ navigation }) {
           <View>
             {photos.length > 0 && (
               <View style={{ marginBottom: 18 }}>
-                <PhotoCarousel photos={photos} />
+                <PhotoCarousel photos={photos} churchId={joinedChurch?.id} />
               </View>
             )}
 

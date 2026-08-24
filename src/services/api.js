@@ -65,8 +65,24 @@ export const publicService = {
     const response = await api.get(`/public/church/${churchId}/announcements`);
     return response.data;
   },
-  getPhotos: async (churchId) => {
-    const response = await api.get(`/public/church/${churchId}/photos`);
+  getPhotos: async (churchId, deviceId) => {
+    const response = await api.get(`/public/church/${churchId}/photos`, {
+      params: deviceId ? { deviceId } : {},
+    });
+    return response.data;
+  },
+  toggleLike: async (churchId, photoId, deviceId) => {
+    const response = await api.post(`/public/church/${churchId}/photos/${photoId}/like`, { deviceId });
+    return response.data;
+  },
+  getPhotoComments: async (churchId, photoId) => {
+    const response = await api.get(`/public/church/${churchId}/photos/${photoId}/comments`);
+    return response.data;
+  },
+  addPhotoComment: async (churchId, photoId, deviceId, authorName, body) => {
+    const response = await api.post(`/public/church/${churchId}/photos/${photoId}/comments`, {
+      deviceId, authorName, body,
+    });
     return response.data;
   },
 };
