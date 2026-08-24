@@ -34,6 +34,7 @@ import AttendanceScreen from "../screens/AttendanceScreen";
 import PhotoFeedScreen from "../screens/PhotoFeedScreen";
 import LiveStreamScreen from "../screens/LiveStreamScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import MemberMessagesScreen from "../screens/MemberMessagesScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -44,6 +45,7 @@ const ActividadesStack = createNativeStackNavigator();
 const MiembrosStack = createNativeStackNavigator();
 const MemberInicioStack = createNativeStackNavigator();
 const MemberMoreStack = createNativeStackNavigator();
+const MemberMessagesStack = createNativeStackNavigator();
 
 const navTheme = {
   ...DarkTheme,
@@ -132,6 +134,17 @@ function MemberMoreStackScreen() {
   );
 }
 
+// Mismo patrón que MemberInicioStack: "LiveStream" necesita vivir en este
+// stack (no en el de Inicio) para poder "volver" a Mensajes al cerrarla.
+function MemberMessagesStackScreen() {
+  return (
+    <MemberMessagesStack.Navigator>
+      <MemberMessagesStack.Screen name="Messages" component={MemberMessagesScreen} options={{ title: "Mensajes" }} />
+      <MemberMessagesStack.Screen name="LiveStream" component={LiveStreamScreen} options={{ headerShown: false, presentation: "fullScreenModal" }} />
+    </MemberMessagesStack.Navigator>
+  );
+}
+
 const TAB_ICONS = {
   InicioTab: "home-outline",
   EventosTab: "calendar-outline",
@@ -143,14 +156,14 @@ const TAB_ICONS = {
 const MEMBER_TAB_ICONS = {
   MemberInicioTab: "home-outline",
   MemberCalendarTab: "calendar-outline",
+  MemberMessagesTab: "book-outline",
   MemberGiveTab: "heart-outline",
   MemberMoreTab: "ellipsis-horizontal-outline",
 };
 
 // Similar a como se ven las apps de iglesia de referencia (Church Center
 // y similares): pestañas fijas abajo en vez de una sola pantalla con
-// scroll infinito. "Mensajes" (prédicas) queda para un próximo paso —
-// necesita una tabla nueva que todavía no existe.
+// scroll infinito.
 function MemberTabs() {
   return (
     <MemberTab.Navigator
@@ -166,6 +179,7 @@ function MemberTabs() {
     >
       <MemberTab.Screen name="MemberInicioTab" component={MemberInicioStackScreen} options={{ title: "Inicio" }} />
       <MemberTab.Screen name="MemberCalendarTab" component={MemberCalendarScreen} options={{ title: "Calendario", headerShown: true }} />
+      <MemberTab.Screen name="MemberMessagesTab" component={MemberMessagesStackScreen} options={{ title: "Mensajes" }} />
       <MemberTab.Screen name="MemberGiveTab" component={MemberGiveScreen} options={{ title: "Dar", headerShown: true }} />
       <MemberTab.Screen name="MemberMoreTab" component={MemberMoreStackScreen} options={{ title: "Más" }} />
     </MemberTab.Navigator>
