@@ -17,7 +17,7 @@ import {
 } from "../services/api";
 import { getLastSeenAnnouncementAt, hasUnseenAnnouncement } from "../utils/announcementsSeen";
 import { pickNextItem, pickLiveNow, daysUntilBirthday } from "../utils/schedule";
-import { colors, gradient, ROLE_META, greetingForTime } from "../theme";
+import { colors, gradient, greetingForTime } from "../theme";
 
 const FINANCE_ROLES = ["ADMIN", "PASTOR", "TESORERO"];
 
@@ -72,10 +72,9 @@ function BirthdayRow({ item }) {
 // solo mostraba el saludo y 3 stats — sin ninguna marca visual de la
 // iglesia, a diferencia del home de miembro que sí la tiene desde el día 1.
 export default function HomeScreen({ navigation }) {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const firstName = user?.fullName?.split(" ")[0] || "";
   const initial = (user?.fullName?.trim()?.charAt(0) || "?").toUpperCase();
-  const role = ROLE_META[user?.role] || { label: user?.role || "", color: colors.muted };
   const canSeeFinances = FINANCE_ROLES.includes(user?.role);
 
   const [hasNewAnnouncement, setHasNewAnnouncement] = useState(false);
@@ -189,35 +188,25 @@ export default function HomeScreen({ navigation }) {
       <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
         <SafeAreaView edges={["top"]}>
           <View style={styles.headerTop}>
-            {church?.logoUrl ? (
-              <Image source={{ uri: church.logoUrl }} style={styles.avatar} />
-            ) : (
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>{initial}</Text>
-              </View>
-            )}
+            <TouchableOpacity style={styles.headerIdentity} onPress={() => navigation.navigate("Profile")}>
+              {church?.logoUrl ? (
+                <Image source={{ uri: church.logoUrl }} style={styles.avatarSmall} />
+              ) : (
+                <View style={styles.avatarSmall}>
+                  <Text style={styles.avatarTextSmall}>{initial}</Text>
+                </View>
+              )}
+              <Text style={styles.compactGreeting} numberOfLines={1}>{greetingForTime()}, {firstName}</Text>
+            </TouchableOpacity>
             <View style={styles.headerActions}>
               <TouchableOpacity style={styles.iconButton} onPress={() => setMenuOpen(true)}>
                 <Ionicons name="menu-outline" size={20} color="#fff" />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.iconButton} onPress={logout}>
-                <Ionicons name="log-out-outline" size={20} color="#fff" />
+              <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate("Profile")}>
+                <Ionicons name="person-outline" size={20} color="#fff" />
               </TouchableOpacity>
             </View>
           </View>
-
-          <Text style={styles.greeting}>{greetingForTime()},</Text>
-          <Text style={styles.name}>{firstName}</Text>
-
-          <View style={styles.metaRow}>
-            <View style={[styles.rolePill, { backgroundColor: role.color + "33", borderColor: role.color }]}>
-              <Text style={[styles.rolePillText, { color: role.color }]}>{role.label}</Text>
-            </View>
-            {(church?.name || user?.churchName) && (
-              <Text style={styles.churchName} numberOfLines={1}>{church?.name || user.churchName}</Text>
-            )}
-          </View>
-          {church?.pastorName ? <Text style={styles.pastorName}>Pastor {church.pastorName}</Text> : null}
 
           <View style={styles.quickActions}>
             <QuickAction icon="megaphone-outline" label="Avisos" onPress={() => navigation.navigate("Announcements")} />
@@ -306,7 +295,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   header: {
     paddingHorizontal: 20,
-    paddingBottom: 22,
+    paddingBottom: 16,
     borderBottomLeftRadius: 28,
     borderBottomRightRadius: 28,
   },
@@ -316,15 +305,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 6,
   },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+  headerIdentity: { flexDirection: "row", alignItems: "center", gap: 10, flex: 1, marginRight: 10 },
+  avatarSmall: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     backgroundColor: "rgba(255,255,255,0.18)",
     alignItems: "center",
     justifyContent: "center",
   },
-  avatarText: { color: "#fff", fontSize: 17, fontWeight: "700" },
+  avatarTextSmall: { color: "#fff", fontSize: 13, fontWeight: "700" },
+  compactGreeting: { color: "#fff", fontSize: 15, fontWeight: "700", flexShrink: 1 },
   headerActions: { flexDirection: "row", gap: 8 },
   iconButton: {
     width: 36,
@@ -334,19 +325,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  greeting: { color: "rgba(255,255,255,0.85)", fontSize: 15, marginTop: 18 },
-  name: { color: "#fff", fontSize: 26, fontWeight: "800", marginTop: 2 },
-  metaRow: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 12, flexWrap: "wrap" },
-  rolePill: {
-    borderWidth: 1,
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-  },
-  rolePillText: { fontSize: 11.5, fontWeight: "700" },
-  churchName: { color: "rgba(255,255,255,0.75)", fontSize: 13, flexShrink: 1 },
-  pastorName: { color: "rgba(255,255,255,0.65)", fontSize: 12.5, marginTop: 4 },
-  quickActions: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 16 },
+  quickActions: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 14 },
   body: { flex: 1 },
   bodyContent: { padding: 20, paddingBottom: 40 },
   summaryRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },

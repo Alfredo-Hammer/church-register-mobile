@@ -30,6 +30,7 @@ import EventListScreen from "../screens/EventListScreen";
 import AttendanceScreen from "../screens/AttendanceScreen";
 import PhotoFeedScreen from "../screens/PhotoFeedScreen";
 import LiveStreamScreen from "../screens/LiveStreamScreen";
+import ProfileScreen from "../screens/ProfileScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -71,6 +72,7 @@ function InicioStackScreen() {
       <InicioStack.Screen name="LeaderDetail" component={LeaderDetailScreen} options={{ title: "Líder" }} />
       <InicioStack.Screen name="PhotoFeed" component={PhotoFeedScreen} options={{ headerShown: false, presentation: "fullScreenModal" }} />
       <InicioStack.Screen name="LiveStream" component={LiveStreamScreen} options={{ headerShown: false, presentation: "fullScreenModal" }} />
+      <InicioStack.Screen name="Profile" component={ProfileScreen} options={{ title: "Mi Perfil" }} />
     </InicioStack.Navigator>
   );
 }
