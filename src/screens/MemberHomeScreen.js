@@ -133,6 +133,7 @@ export default function MemberHomeScreen({ navigation }) {
   const [announcements, setAnnouncements] = useState([]);
   const [photos, setPhotos] = useState([]);
   const [liveStreamUrl, setLiveStreamUrl] = useState(null);
+  const [defaultVideoUrl, setDefaultVideoUrl] = useState(null);
   const [lastSeenAt, setLastSeenAt] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -155,6 +156,7 @@ export default function MemberHomeScreen({ navigation }) {
       setAnnouncements(announcementsData.announcements || []);
       setPhotos(photosData.photos || []);
       setLiveStreamUrl(liveStreamData.liveStreamUrl || null);
+      setDefaultVideoUrl(liveStreamData.defaultVideoUrl || null);
       const previousSeenAt = await getLastSeenAnnouncementAt();
       setLastSeenAt(previousSeenAt);
       if (announcementsData.announcements?.[0]) {
@@ -226,9 +228,9 @@ export default function MemberHomeScreen({ navigation }) {
         }
         ListHeaderComponent={
           <View>
-            {liveStreamUrl && (
+            {(liveStreamUrl || defaultVideoUrl) && (
               <View style={{ marginBottom: 18 }}>
-                <LiveStreamBanner liveStreamUrl={liveStreamUrl} />
+                <LiveStreamBanner liveStreamUrl={liveStreamUrl} defaultVideoUrl={defaultVideoUrl} />
               </View>
             )}
 

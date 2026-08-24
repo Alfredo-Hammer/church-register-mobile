@@ -1,27 +1,60 @@
-import { useState } from "react";
-import { View, TouchableOpacity, ActivityIndicator, StyleSheet } from "react-native";
+import { useState, useEffect } from "react";
+import { View, TouchableOpacity, ActivityIndicator, StyleSheet, useWindowDimensions } from "react-native";
 import { WebView } from "react-native-webview";
+import * as ScreenOrientation from "expo-screen-orientation";
 import { Ionicons } from "@expo/vector-icons";
 import { buildFacebookEmbedUrl } from "../utils/facebookEmbed";
 
-// Pantalla completa con la transmisión de Facebook embebida — el WebView
-// carga la página oficial de embed de Facebook (plugins/video.php), el
-// mismo mecanismo que usaría un <iframe> en la web. Sin controles propios:
-// los controles de play/pause/volumen son los que ya trae el player de
-// Facebook dentro de esa página.
+// Facebook no respeta el parámetro `height` que le pedimos en la URL del
+// plugin — reescala el video a su proporción real, que varía según cómo
+// grabó cada iglesia (probado con un video real: salió ~1.54:1, no 16:9).
+// Se usa 4:3 a propósito, más "cuadrado" que 16:9, porque una caja un
+// poco más alta de lo necesario en un video panorámico deja franjas
+// vacías (aceptable), mientras que una caja demasiado baja recorta parte
+// del video real (mucho peor) — WebView no crece para ajustarse al
+// contenido, solo muestra lo que entra en el tamaño que se le da.
+const ASPECT_RATIO = 4 / 3;
+
+// Pantalla completa con la transmisión/video de Facebook embebido. Dos
+// cosas que la página del plugin de Facebook no resuelve sola (verificado
+// navegando directo a video.php): el video no se centra ni ocupa el
+// contenedor — hay que calcular nosotros un recuadro 16:9 que entre en la
+// pantalla (en cualquier orientación) y centrarlo a mano.
 export default function LiveStreamScreen({ route, navigation }) {
   const { streamUrl } = route.params;
   const [loading, setLoading] = useState(true);
+  const { width: winW, height: winH } = useWindowDimensions();
+
+  // Girar el teléfono agranda el video como cualquier reproductor — el
+  // resto de la app se mantiene en portrait (ver app.json), así que acá
+  // se desbloquea la orientación al entrar y se vuelve a portrait al salir.
+  useEffect(() => {
+    ScreenOrientation.unlockAsync();
+    return () => {
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+    };
+  }, []);
+
+  let videoWidth = winW;
+  let videoHeight = videoWidth / ASPECT_RATIO;
+  if (videoHeight > winH) {
+    videoHeight = winH;
+    videoWidth = videoHeight * ASPECT_RATIO;
+  }
 
   return (
     <View style={styles.container}>
-      <WebView
-        source={{ uri: buildFacebookEmbedUrl(streamUrl) }}
-        style={styles.webview}
-        allowsInlineMediaPlayback
-        mediaPlaybackRequiresUserAction={false}
-        onLoadEnd={() => setLoading(false)}
-      />
+      <View style={[styles.videoBox, { width: videoWidth, height: videoHeight }]}>
+        <WebView
+          key={`${Math.round(videoWidth)}x${Math.round(videoHeight)}`}
+          source={{ uri: buildFacebookEmbedUrl(streamUrl, videoWidth, videoHeight) }}
+          style={styles.webview}
+          allowsInlineMediaPlayback
+          mediaPlaybackRequiresUserAction={false}
+          scrollEnabled={false}
+          onLoadEnd={() => setLoading(false)}
+        />
+      </View>
 
       {loading && (
         <View style={styles.loadingOverlay} pointerEvents="none">
@@ -37,7 +70,8 @@ export default function LiveStreamScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#000" },
+  container: { flex: 1, backgroundColor: "#000", alignItems: "center", justifyContent: "center" },
+  videoBox: { overflow: "hidden" },
   webview: { flex: 1, backgroundColor: "#000" },
   loadingOverlay: { ...StyleSheet.absoluteFillObject, alignItems: "center", justifyContent: "center" },
   closeButton: {

@@ -217,9 +217,9 @@ export default function HomeScreen({ navigation }) {
       </LinearGradient>
 
       <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent}>
-        {church?.liveStreamUrl && (
+        {(church?.liveStreamUrl || church?.defaultVideoUrl) && (
           <View style={{ marginBottom: 18 }}>
-            <LiveStreamBanner liveStreamUrl={church.liveStreamUrl} />
+            <LiveStreamBanner liveStreamUrl={church.liveStreamUrl} defaultVideoUrl={church.defaultVideoUrl} />
           </View>
         )}
 
